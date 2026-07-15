@@ -1,0 +1,270 @@
+:root {
+  --neon-purple: #a855f7;
+  --neon-green: #22c55e;
+  --neon-magenta: #ec4899;
+  --neon-cyan: #06b6d4;
+  --bg-dark: #090514;
+  --bg-darker: #05020a;
+  --bg-panel: rgba(15, 8, 25, 0.75);
+  --border-neon: rgba(168, 85, 247, 0.3);
+  --border-neon-green: rgba(34, 197, 94, 0.3);
+  
+  --sans: 'Rajdhani', sans-serif;
+  --hud: 'Orbitron', sans-serif;
+  
+  font-family: var(--sans);
+  background-color: var(--bg-dark);
+  color: #e2e8f0;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  box-sizing: border-box;
+}
+
+*, *::before, *::after {
+  box-sizing: inherit;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  background-image: 
+    radial-gradient(circle at 20% 30%, rgba(168, 85, 247, 0.15) 0%, transparent 40%),
+    radial-gradient(circle at 80% 70%, rgba(236, 48, 153, 0.12) 0%, transparent 45%),
+    linear-gradient(rgba(10, 5, 20, 0.95), rgba(10, 5, 20, 0.95)),
+    url('data:image/svg+xml;utf8,<svg width="40" height="40" xmlns="http://www.w3.org/2000/svg"><path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(168, 85, 247, 0.04)" stroke-width="1"/></svg>');
+  background-attachment: fixed;
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-darker);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--neon-purple);
+  border-radius: 3px;
+  box-shadow: 0 0 8px var(--neon-purple);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--neon-magenta);
+}
+
+/* Glassmorphism Panel */
+.glass-panel {
+  background: var(--bg-panel);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border-neon);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5), 
+              inset 0 0 12px rgba(168, 85, 247, 0.1);
+  border-radius: 8px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-panel:hover {
+  border-color: rgba(168, 85, 247, 0.6);
+  box-shadow: 0 8px 32px 0 rgba(168, 85, 247, 0.2), 
+              inset 0 0 16px rgba(168, 85, 247, 0.15);
+}
+
+.glass-panel-green {
+  background: var(--bg-panel);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border-neon-green);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5), 
+              inset 0 0 12px rgba(34, 197, 94, 0.1);
+  border-radius: 8px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-panel-green:hover {
+  border-color: rgba(34, 197, 94, 0.6);
+  box-shadow: 0 8px 32px 0 rgba(34, 197, 94, 0.2), 
+              inset 0 0 16px rgba(34, 197, 94, 0.15);
+}
+
+/* Neon Text */
+.neon-text-purple {
+  color: #fff;
+  text-shadow: 0 0 5px #fff, 0 0 10px var(--neon-purple), 0 0 20px var(--neon-purple);
+}
+
+.neon-text-green {
+  color: #fff;
+  text-shadow: 0 0 5px #fff, 0 0 10px var(--neon-green), 0 0 20px var(--neon-green);
+}
+
+.neon-text-magenta {
+  color: #fff;
+  text-shadow: 0 0 5px #fff, 0 0 10px var(--neon-magenta), 0 0 20px var(--neon-magenta);
+}
+
+/* Diagonal Warning Tape Banner */
+.warning-tape-container {
+  overflow: hidden;
+  position: relative;
+  background: #a855f7; /* fallback */
+  height: 38px;
+  display: flex;
+  align-items: center;
+  border-top: 2px solid #000;
+  border-bottom: 2px solid #000;
+  transform: skewY(-1.5deg);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+  z-index: 10;
+}
+
+.warning-tape-content {
+  display: flex;
+  white-space: nowrap;
+  animation: marquee 25s linear infinite;
+  font-family: var(--hud);
+  font-weight: 900;
+  font-size: 1.1rem;
+  letter-spacing: 2px;
+  color: #fff;
+}
+
+.warning-tape-content span {
+  display: inline-block;
+  padding: 0 2rem;
+  text-transform: uppercase;
+}
+
+.warning-tape-content span::after {
+  content: " /// ";
+  color: #000;
+  margin-left: 2rem;
+  text-shadow: none;
+}
+
+/* Alternate Tape (Green/Black) */
+.warning-tape-green {
+  background: var(--neon-green);
+  border-color: #000;
+  transform: skewY(1.5deg);
+}
+
+.warning-tape-green .warning-tape-content {
+  color: #000;
+  animation: marquee-reverse 30s linear infinite;
+}
+
+.warning-tape-green .warning-tape-content span::after {
+  color: #fff;
+}
+
+/* Animations */
+@keyframes marquee {
+  0% { transform: translate3d(0, 0, 0); }
+  100% { transform: translate3d(-50%, 0, 0); }
+}
+
+@keyframes marquee-reverse {
+  0% { transform: translate3d(-50%, 0, 0); }
+  100% { transform: translate3d(0, 0, 0); }
+}
+
+/* Neon buttons */
+.neon-btn {
+  background: transparent;
+  color: #fff;
+  border: 1px solid var(--neon-purple);
+  padding: 0.75rem 1.5rem;
+  font-family: var(--hud);
+  font-weight: 700;
+  text-transform: uppercase;
+  border-radius: 4px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s;
+  box-shadow: 0 0 10px rgba(168, 85, 247, 0.2);
+}
+
+.neon-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: 0.5s;
+}
+
+.neon-btn:hover::before {
+  left: 100%;
+}
+
+.neon-btn:hover {
+  background: var(--neon-purple);
+  box-shadow: 0 0 20px var(--neon-purple);
+  border-color: #fff;
+}
+
+.neon-btn-green {
+  border-color: var(--neon-green);
+  box-shadow: 0 0 10px rgba(34, 197, 94, 0.2);
+}
+
+.neon-btn-green:hover {
+  background: var(--neon-green);
+  box-shadow: 0 0 20px var(--neon-green);
+  border-color: #000;
+  color: #000;
+}
+
+/* Grid Layout */
+.game-container {
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+  display: grid;
+  grid-template-columns: 280px 1fr 340px;
+  gap: 2rem;
+  align-items: start;
+}
+
+@media (max-width: 1024px) {
+  .game-container {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    padding: 1rem;
+  }
+}
+
+/* Game Title */
+.game-header {
+  text-align: center;
+  padding: 2rem 1rem 1rem;
+  position: relative;
+}
+
+.game-title {
+  font-family: var(--hud);
+  font-size: 3.5rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  margin: 0;
+  letter-spacing: 4px;
+}
+
+@media (max-width: 768px) {
+  .game-title {
+    font-size: 2.2rem;
+  }
+}
