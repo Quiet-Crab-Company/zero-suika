@@ -4,9 +4,8 @@ import confetti from 'canvas-confetti';
 
 import { MASCOTS } from '../config/mascots';
 
-
 const WARNING_LINE_Y = 120;
-const DROP_COOLDOWN = 600; // ms
+const DROP_COOLDOWN = 600; 
 const WALL_WIDTH = 12;
 
 export default function GameCanvas({ 
@@ -26,14 +25,12 @@ export default function GameCanvas({
   images
 }) {
   const canvasRef = useRef(null);
-  
-  // Game states
+
   const [currentMascotIndex, setCurrentMascotIndex] = useState(0);
   const [canDrop, setCanDrop] = useState(true);
   const [mouseX, setMouseX] = useState(240);
-  const [warningTimer, setWarningTimer] = useState(0); // 0 to 2000 ms
+  const [warningTimer, setWarningTimer] = useState(0); 
 
-  // Refs for physics engine access and loop persistence
   const engineRef = useRef(null);
   const loopRef = useRef(null);
   const mergesQueueRef = useRef([]);
@@ -41,7 +38,6 @@ export default function GameCanvas({
   const bodiesToDeleteRef = useRef(new Set());
   const warnTimeAccumulatorRef = useRef(0);
 
-  // Refs to prevent stale closures and avoid rebuilding engine on state changes
   const mouseXRef = useRef(mouseX);
   const currentMascotIndexRef = useRef(currentMascotIndex);
   const canDropRef = useRef(canDrop);
@@ -49,7 +45,6 @@ export default function GameCanvas({
   const nextMascotIndexRef = useRef(nextMascotIndex);
   const warningTimerRef = useRef(0);
 
-  // Sync refs to avoid re-triggering main useEffect
   useEffect(() => { mouseXRef.current = mouseX; }, [mouseX]);
   useEffect(() => { currentMascotIndexRef.current = currentMascotIndex; }, [currentMascotIndex]);
   useEffect(() => { canDropRef.current = canDrop; }, [canDrop]);
@@ -58,30 +53,24 @@ export default function GameCanvas({
 
   const currentMascot = MASCOTS[currentMascotIndex];
 
-  // Helper to clamp mouse X coordinate
   const getClampedX = (rawX, radius) => {
     const leftLimit = WALL_WIDTH + radius;
     const rightLimit = 480 - WALL_WIDTH - radius;
     return Math.max(leftLimit, Math.min(rightLimit, rawX));
   };
 
-  // Initialize Matter.js engine exactly ONCE (or on reset)
   useEffect(() => {
     if (!images) return;
 
-    // Reset local warning timers
     warnTimeAccumulatorRef.current = 0;
     warningTimerRef.current = 0;
     setWarningTimer(0);
 
-    // 1. Create Engine
     const engine = Matter.Engine.create({
       gravity: { y: 1.0, scale: 0.001 }
     });
     engineRef.current = engine;
 
-    // 2. Create Static boundaries (rendered in CSS, invisible in canvas but static)
-    // Thickened to 200px to completely prevent mascot tunneling during initial load or lag spikes
     const floor = Matter.Bodies.rectangle(240, 768, 480, 200, {
       isStatic: true,
       friction: 0.1
@@ -97,7 +86,6 @@ export default function GameCanvas({
 
     Matter.Composite.add(engine.world, [floor, leftWall, rightWall]);
 
-    // 3. Collision Events (merging)
     const handleCollision = (event) => {
       event.pairs.forEach((pair) => {
         const bodyA = pair.bodyA;
@@ -127,7 +115,6 @@ export default function GameCanvas({
 
     Matter.Events.on(engine, 'collisionStart', handleCollision);
 
-    // 4. Custom Render and Physics Loop
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
     let lastTime = performance.now();
@@ -138,10 +125,8 @@ export default function GameCanvas({
 
       const clampedDt = Math.min(dt, 32);
 
-      // A. Update Physics World
       Matter.Engine.update(engine, clampedDt);
 
-      // B. Process Merge Queue
       const merges = mergesQueueRef.current;
       mergesQueueRef.current = [];
 
@@ -153,8 +138,8 @@ export default function GameCanvas({
           Matter.Composite.remove(engine.world, toRemove);
         }
 
-        const nextTier = tier + 1;
-        if (nextTier < MASCOTS.length) {
+        if (tier + 1 < MASCOTS.length) {
+          const nextTier = tier + 1;
           const newMascotDef = MASCOTS[nextTier];
           const newBody = Matter.Bodies.circle(x, y, newMascotDef.radius, {
             restitution: 0.15,
@@ -168,11 +153,9 @@ export default function GameCanvas({
           
           Matter.Composite.add(engine.world, newBody);
 
-          // Update current max tier highlight in sidebar UI
           setCurrentTier(nextTier);
           if (onMerge) onMerge(nextTier);
 
-          // Award score
           const addedScore = newMascotDef.score;
           setScore(prev => {
             const nextScore = prev + addedScore;
@@ -183,7 +166,6 @@ export default function GameCanvas({
             return nextScore;
           });
 
-          // Canvas confetti celebration
           if (nextTier === 8) {
             confetti({
               particleCount: 100,
@@ -194,10 +176,28 @@ export default function GameCanvas({
           }
 
           createMergeParticles(x, y, newMascotDef.color);
+        } else {
+          confetti({
+            particleCount: 150,
+            spread: 80,
+            origin: { y: 0.6 },
+            colors: ['#f97316', '#a855f7', '#ec4899', '#326aa5', '#06b6d4']
+          });
+
+          setScore(prev => {
+            const nextScore = prev + 1000;
+            if (nextScore > highScore) {
+              setHighScore(nextScore);
+              localStorage.setItem('t9suika_highscore', String(nextScore));
+            }
+            return nextScore;
+          });
+
+          if (onMerge) onMerge(8);
+          createMergeParticles(x, y, '#f97316');
         }
       });
 
-      // Clear deleted bodies from tracker
       const allActiveBodies = Matter.Composite.allBodies(engine.world);
       const activeIds = new Set(allActiveBodies.map(b => b.id));
       for (const id of bodiesToDeleteRef.current) {
@@ -206,31 +206,25 @@ export default function GameCanvas({
         }
       }
 
-      // C. Render Particles
       updateParticles();
 
-      // D. Draw Elements
       ctx.clearRect(0, 0, 480, 680);
       drawBackgroundGrid(ctx);
       drawWarningLine(ctx);
       drawGlassBox(ctx);
 
-      // Draw all bodies
       allActiveBodies.forEach((body) => {
         if (body.isMascot) {
           drawMascotBody(ctx, body);
         }
       });
 
-      // E. Check safety warning overflow line
       checkGameOverLine(allActiveBodies, clampedDt);
 
-      // F. Render active drop cursor guide and preview mascot
       if (canDropRef.current && !isGameOverRef.current) {
         const activeMascot = MASCOTS[currentMascotIndexRef.current];
         const clampedX = getClampedX(mouseXRef.current, activeMascot.radius);
 
-        // Aim line
         ctx.save();
         ctx.beginPath();
         ctx.setLineDash([5, 8]);
@@ -241,7 +235,6 @@ export default function GameCanvas({
         ctx.stroke();
         ctx.restore();
 
-        // Dropper hovering preview
         ctx.save();
         ctx.translate(clampedX, 80);
         if (images[currentMascotIndexRef.current]) {
@@ -250,7 +243,6 @@ export default function GameCanvas({
         ctx.restore();
       }
 
-      // Draw merge particles on top
       drawParticles(ctx);
 
       loopRef.current = requestAnimationFrame(gameLoop);
@@ -266,16 +258,15 @@ export default function GameCanvas({
     };
   }, [images, resetTrigger]);
 
-  // Particle updates
   const createMergeParticles = (x, y, color) => {
     const list = particlesRef.current;
     for (let i = 0; i < 26; i++) {
       list.push({
         x,
         y,
-        vx: (Math.random() - 0.5) * 9,   // Slightly faster speed
+        vx: (Math.random() - 0.5) * 9,   
         vy: (Math.random() - 0.5) * 9 - 3,
-        size: Math.floor(Math.random() * 6) + 4, // 4px to 9px square blocks
+        size: Math.floor(Math.random() * 6) + 4, 
         color,
         alpha: 1,
         decay: Math.random() * 0.02 + 0.012
@@ -289,7 +280,7 @@ export default function GameCanvas({
       const p = list[i];
       p.x += p.vx;
       p.y += p.vy;
-      p.vy += 0.15; // Gravity pull on squares
+      p.vy += 0.15; 
       p.alpha -= p.decay;
       if (p.alpha <= 0) {
         list.splice(i, 1);
@@ -304,15 +295,13 @@ export default function GameCanvas({
       ctx.globalAlpha = p.alpha;
       ctx.fillStyle = p.color;
       ctx.shadowColor = p.color;
-      ctx.shadowBlur = 5; // Subtle glow for pixel-art clarity
-      
-      // Draw as square block
+      ctx.shadowBlur = 5; 
+
       ctx.fillRect(p.x - p.size / 2, p.y - p.size / 2, p.size, p.size);
       ctx.restore();
     });
   };
 
-  // Background visual drawings
   const drawBackgroundGrid = (ctx) => {
     ctx.strokeStyle = 'rgba(168, 85, 247, 0.03)';
     ctx.lineWidth = 1;
@@ -333,7 +322,6 @@ export default function GameCanvas({
   const drawWarningLine = (ctx) => {
     const timeTicking = warningTimerRef.current > 0 && !isGameOverRef.current;
 
-    // Always draw the red dashed warning line
     ctx.save();
     ctx.beginPath();
     ctx.setLineDash([10, 5]);
@@ -349,7 +337,6 @@ export default function GameCanvas({
     ctx.stroke();
     ctx.restore();
 
-    // Only draw the countdown text label during active overflow
     if (timeTicking) {
       ctx.save();
       ctx.fillStyle = '#ef4444';
@@ -371,22 +358,18 @@ export default function GameCanvas({
 
     const floorY = 680 - WALL_WIDTH;
 
-    // 1. Draw floor sheet (across the bottom)
     ctx.beginPath();
     ctx.rect(0, floorY, 480, WALL_WIDTH);
     ctx.fill();
 
-    // 2. Draw left wall sheet (down to floor)
     ctx.beginPath();
     ctx.rect(0, 0, WALL_WIDTH, floorY);
     ctx.fill();
 
-    // 3. Draw right wall sheet (down to floor)
     ctx.beginPath();
     ctx.rect(480 - WALL_WIDTH, 0, WALL_WIDTH, floorY);
     ctx.fill();
 
-    // 4. Draw inner reflection lines (strokes) facing the play area
     ctx.beginPath();
     ctx.moveTo(WALL_WIDTH, 0);
     ctx.lineTo(WALL_WIDTH, floorY);
@@ -413,7 +396,6 @@ export default function GameCanvas({
     ctx.restore();
   };
 
-  // Game over line monitoring
   const checkGameOverLine = (bodies, dt) => {
     if (isGameOverRef.current) return;
 
@@ -423,7 +405,7 @@ export default function GameCanvas({
       if (body.isStatic || !body.isMascot) return;
       
       const topOfBody = body.position.y - body.radius;
-      // Ensure the body has fallen past the initial spawn point before testing violation
+      
       if (topOfBody < WARNING_LINE_Y && body.velocity.y < 0.12 && body.position.y > 100) {
         isViolating = true;
       }
@@ -451,7 +433,6 @@ export default function GameCanvas({
     }
   };
 
-  // Mouse / Touch movement handlers
   const handleMouseMove = (e) => {
     if (!canvasRef.current || isGameOverRef.current) return;
     const rect = canvasRef.current.getBoundingClientRect();
@@ -479,11 +460,9 @@ export default function GameCanvas({
     setMouseX(x);
   };
 
-  // Mouse / Touch click drops
   const handleDrop = () => {
     if (!canDropRef.current || isGameOverRef.current || !images || !engineRef.current) return;
 
-    // Synchronously lock dropper immediately to prevent overlapping duplicate spawns
     canDropRef.current = false;
     setCanDrop(false);
 
@@ -501,8 +480,7 @@ export default function GameCanvas({
     });
 
     Matter.Composite.add(engineRef.current.world, body);
-    
-    // Trigger drop audio
+
     if (onDrop) onDrop();
 
     setTimeout(() => {

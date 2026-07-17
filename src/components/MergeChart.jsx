@@ -29,19 +29,17 @@ export default function MergeChart({ currentTier, lang }) {
         <span>{isJp ? '進化の輪' : 'EVOLUTION WHEEL'}</span>
       </div>
 
-      {/* Wheel Area */}
       <div style={{
         position: 'relative',
         width: `${containerSize}px`,
         height: `${containerSize}px`
       }}>
         <svg style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none' }}>
-          {/* Circular track showing flow from tier 1 (top, index 0) clockwise */}
+          
           <circle cx={centerCoord} cy={centerCoord} r={radius} fill="none" stroke="rgba(168, 85, 247, 0.15)" strokeWidth="4" />
           <circle cx={centerCoord} cy={centerCoord} r={radius} fill="none" stroke="rgba(168, 85, 247, 0.4)" strokeWidth="2" strokeDasharray="6,8" />
         </svg>
 
-        {/* Center Element: Top Tier 9 */}
         {(() => {
           const isCenterActive = currentTier === 8;
           const isCenterHovered = hoveredIndex === 8;
@@ -83,9 +81,8 @@ export default function MergeChart({ currentTier, lang }) {
           );
         })()}
 
-        {/* Surrounding Elements (Tiers 1 to 8) */}
         {surroundingMascots.map((m, index) => {
-          const angle = -Math.PI / 2 + index * (Math.PI / 4); // Start at top, go clockwise
+          const angle = -Math.PI / 2 + index * (Math.PI / 4); 
           const x = centerCoord + radius * Math.cos(angle);
           const y = centerCoord + radius * Math.sin(angle);
           const isItemActive = currentTier >= m.tier;
@@ -128,7 +125,7 @@ export default function MergeChart({ currentTier, lang }) {
                   transition: 'all 0.2s'
                 }}
               />
-              {/* Active check dot */}
+              
               {isItemCurrentlyHighlighted && (
                 <div style={{
                   position: 'absolute',

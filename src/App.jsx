@@ -7,11 +7,11 @@ import { MASCOTS } from './config/mascots';
 
 export default function App() {
   const [score, setScore] = useState(0);
+  const scoreRef = useRef(0);
   const [highScore, setHighScore] = useState(() => {
     return Number(localStorage.getItem('t9suika_highscore')) || 0;
   });
 
-  // Start with a random index from 0 to 4 (tiers 1 to 5)
   const [nextMascotIndex, setNextMascotIndex] = useState(() => {
     return Math.floor(Math.random() * 5);
   });
@@ -45,7 +45,6 @@ export default function App() {
   const [isAssetsLoaded, setIsAssetsLoaded] = useState(false);
   const [gameStarted, setGameStarted] = useState(false);
 
-  // Pre-load all mascot assets at application startup
   useEffect(() => {
     let count = 0;
     const imgs = {};
@@ -62,7 +61,7 @@ export default function App() {
         }
       };
       img.onerror = () => {
-        // Fallback canvas drawing if asset fails
+        
         const canvas = document.createElement('canvas');
         canvas.width = 128;
         canvas.height = 128;
@@ -89,11 +88,10 @@ export default function App() {
 
   const bgmRef = useRef(null);
 
-  // BGM Audio Element initialization
   useEffect(() => {
     const audio = new Audio(`${import.meta.env.BASE_URL}すやすやタイム.mp3`);
     audio.loop = true;
-    audio.volume = 0.25; // Balanced volume
+    audio.volume = 0.25; 
     bgmRef.current = audio;
 
     return () => {
@@ -103,7 +101,6 @@ export default function App() {
     };
   }, []);
 
-  // Sync BGM play/pause status with the global mute state and game initiation
   useEffect(() => {
     if (!bgmRef.current || !gameStarted) return;
 
@@ -121,7 +118,7 @@ export default function App() {
       bgmRef.current.pause();
     } else {
       bgmRef.current.play().catch(() => {
-        // Autoplay policy blocked it, set listener for first user interaction
+        
         window.addEventListener('click', startAudio);
         window.addEventListener('touchstart', startAudio);
       });
@@ -134,7 +131,6 @@ export default function App() {
     };
   }, [muted, gameStarted]);
 
-  // Sound generator utilizing Web Audio API (completely client-side synthesized, no asset dependencies)
   const playSound = (type, tier = 0) => {
     if (muted) return;
     try {
@@ -143,7 +139,7 @@ export default function App() {
       const ctx = new AudioContext();
 
       if (type === 'merge') {
-        // High frequency upward chime
+        
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
 
@@ -160,7 +156,7 @@ export default function App() {
         osc.start();
         osc.stop(ctx.currentTime + 0.18);
       } else if (type === 'drop') {
-        // Short subtle high pluck
+        
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
 
@@ -176,30 +172,9 @@ export default function App() {
         osc.start();
         osc.stop(ctx.currentTime + 0.08);
       } else if (type === 'gameover') {
-        // Detuned heavy low pitch sweep
-        const osc1 = ctx.createOscillator();
-        const osc2 = ctx.createOscillator();
-        const gain = ctx.createGain();
-
-        osc1.type = 'sawtooth';
-        osc2.type = 'square';
-
-        osc1.frequency.setValueAtTime(110, ctx.currentTime);
-        osc1.frequency.linearRampToValueAtTime(35, ctx.currentTime + 0.7);
-        osc2.frequency.setValueAtTime(108, ctx.currentTime);
-        osc2.frequency.linearRampToValueAtTime(34, ctx.currentTime + 0.7);
-
-        gain.gain.setValueAtTime(0.18, ctx.currentTime);
-        gain.gain.linearRampToValueAtTime(0.001, ctx.currentTime + 0.75);
-
-        osc1.connect(gain);
-        osc2.connect(gain);
-        gain.connect(ctx.destination);
-
-        osc1.start();
-        osc2.start();
-        osc1.stop(ctx.currentTime + 0.78);
-        osc2.stop(ctx.currentTime + 0.78);
+        const audio = new Audio(`${import.meta.env.BASE_URL}game-over.mp3`);
+        audio.volume = 0.35;
+        audio.play().catch(e => console.log('Game Over SFX play failed:', e));
       }
     } catch (e) {
       console.warn('AudioContext failed to trigger:', e);
@@ -214,31 +189,38 @@ export default function App() {
     playSound('drop');
   };
 
+  useEffect(() => {
+    scoreRef.current = score;
+  }, [score]);
+
   const handleGameOver = () => {
     setIsGameOver(true);
     setIsOverflowing(false);
     playSound('gameover');
 
-    // Update daily scores list
-    setDailyScores(prev => {
-      const todayStr = new Date().toISOString().split('T')[0];
-      const newScores = [...prev, score];
-      newScores.sort((a, b) => b - a);
-      const top3 = newScores.slice(0, 3);
-      localStorage.setItem('t9suika_daily_scores', JSON.stringify({
-        date: todayStr,
-        scores: top3
-      }));
-      return top3;
-    });
+    const currentScore = scoreRef.current;
+    if (currentScore > 0) {
+      setDailyScores(prev => {
+        const todayStr = new Date().toISOString().split('T')[0];
+        const newScores = [...prev, currentScore];
+        newScores.sort((a, b) => b - a);
+        const top3 = newScores.slice(0, 3);
+        localStorage.setItem('t9suika_daily_scores', JSON.stringify({
+          date: todayStr,
+          scores: top3
+        }));
+        return top3;
+      });
+    }
   };
 
   const handleRestart = () => {
-    // If restarting while playing, save the current score to daily scores
-    if (score > 0 && !isGameOver) {
+    
+    const currentScore = scoreRef.current;
+    if (currentScore > 0 && !isGameOver) {
       setDailyScores(prev => {
         const todayStr = new Date().toISOString().split('T')[0];
-        const newScores = [...prev, score];
+        const newScores = [...prev, currentScore];
         newScores.sort((a, b) => b - a);
         const top3 = newScores.slice(0, 3);
         localStorage.setItem('t9suika_daily_scores', JSON.stringify({
@@ -291,7 +273,7 @@ export default function App() {
         zIndex: 9999,
         padding: '2rem'
       }}>
-        {/* Loading card */}
+        
         <div 
           className="glass-panel" 
           style={{
@@ -305,7 +287,7 @@ export default function App() {
             boxShadow: '0 20px 50px rgba(0, 0, 0, 0.7), 0 0 30px rgba(168, 85, 247, 0.1)'
           }}
         >
-          {/* Futuristic animated rings */}
+          
           <div style={{ position: 'relative', width: '100px', height: '100px', marginBottom: '2rem' }}>
             <div style={{
               position: 'absolute',
@@ -369,7 +351,6 @@ export default function App() {
             {isJp ? 'トライブナイン ファンメイド スイカゲーム' : 'Tribe Nine fanmade Suika game'}
           </p>
 
-          {/* Loading status bar */}
           <div style={{ width: '100%', height: '4px', background: 'rgba(255, 255, 255, 0.05)', borderRadius: '2px', overflow: 'hidden', marginBottom: '2.5rem' }}>
             <div style={{
               width: `${progressPercent}%`,
@@ -380,7 +361,6 @@ export default function App() {
             }} />
           </div>
 
-          {/* Start button or status message */}
           {isAssetsLoaded ? (
             <button
               className="neon-btn"
@@ -412,7 +392,6 @@ export default function App() {
           )}
         </div>
 
-        {/* Floating background keyframes style */}
         <style>{`
           @keyframes spin {
             0% { transform: rotate(0deg); }
@@ -430,10 +409,8 @@ export default function App() {
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
 
-      {/* Screen Red Glow on Overflow */}
       {isOverflowing && <div className="screen-glow-red" />}
 
-      {/* Top Tribe Nine Warning Tape Banner */}
       <div className={`warning-tape-container ${isOverflowing ? 'warning-tape-overflow' : ''}`}>
         <div className="warning-tape-content">
           {isOverflowing ? (
@@ -465,7 +442,6 @@ export default function App() {
         </div>
       </div>
 
-      {/* Main Header / HUD bar */}
       <header className="game-header">
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           <h1 className="game-title neon-text-purple" style={{ fontSize: '2rem', letterSpacing: '1px', textTransform: 'uppercase' }}>
@@ -473,9 +449,8 @@ export default function App() {
           </h1>
         </div>
 
-        {/* Controls: Language and Audio */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          {/* Language Switch pill toggle */}
+          
           <div style={{
             display: 'flex',
             background: 'rgba(255, 255, 255, 0.03)',
@@ -488,7 +463,7 @@ export default function App() {
             width: '76px',
             height: '32px'
           }} onClick={toggleLang}>
-            {/* Sliding capsule background */}
+            
             <div style={{
               position: 'absolute',
               top: '1px',
@@ -532,7 +507,6 @@ export default function App() {
             </div>
           </div>
 
-          {/* Audio Mute HUD button */}
           <button
             onClick={toggleMute}
             style={{
@@ -558,7 +532,6 @@ export default function App() {
         </div>
       </header>
 
-      {/* Primary Layout Grid */}
       <main className="game-container">
 
         <section className="grid-sidebar-left" style={{ width: '100%' }}>
@@ -572,11 +545,9 @@ export default function App() {
           </div>
         </section>
 
-        {/* Center: Drop Canvas Container */}
         <section className="grid-canvas-center" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
           <div style={{ position: 'relative', width: '100%', maxWidth: '520px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            
-            {/* Mobile Score HUD */}
+
             <div className="mobile-score-hud">
               <div className="mobile-score-card">
                 <span className="label">{lang === 'jp' ? 'スコア' : 'SCORE'}</span>
@@ -606,7 +577,6 @@ export default function App() {
                 images={preloadedImages}
               />
 
-              {/* Game Over Screen Overlay */}
               {isGameOver && (
                 <div
                   className="glass-panel"
@@ -677,12 +647,10 @@ export default function App() {
           </div>
         </section>
 
-        {/* Right Side: Evolution Merge Chart */}
         <section className="grid-sidebar-right" style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
           <UpcomingDrop nextMascotIndex={nextMascotIndex} lang={lang} />
           <MergeChart currentTier={currentTier} lang={lang} />
-          
-          {/* Sidebar right footer credits */}
+
           <div style={{
             display: 'flex',
             alignItems: 'center',
@@ -717,7 +685,6 @@ export default function App() {
         </section>
       </main>
 
-      {/* Bottom Tribe Nine Reverse Tape Banner */}
       <div className={`warning-tape-container ${isOverflowing ? 'warning-tape-overflow' : 'warning-tape-blue'}`} style={{ marginTop: 'auto' }}>
         <div className="warning-tape-content">
           {isOverflowing ? (
