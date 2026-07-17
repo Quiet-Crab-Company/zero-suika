@@ -4,9 +4,13 @@ import { RotateCcw, Trophy, ArrowRight, Eye } from 'lucide-react';
 const MASCOTS = [
   { tier: 0, name: "Mascot 1", filename: "mascot_01.webp", color: "#a855f7" },
   { tier: 1, name: "Mascot 2", filename: "mascot_02.webp", color: "#c084fc" },
-  { tier: 2, name: "Mascot 3", filename: "mascot_03.webp", color: "#22c55e" },
-  { tier: 3, name: "Mascot 4", filename: "mascot_04.webp", color: "#4ade80" },
-  { tier: 4, name: "Mascot 5", filename: "mascot_05.webp", color: "#06b6d4" }
+  { tier: 2, name: "Mascot 3", filename: "mascot_03.webp", color: "#326aa5" },
+  { tier: 3, name: "Mascot 4", filename: "mascot_04.webp", color: "#60a5fa" },
+  { tier: 4, name: "Mascot 5", filename: "mascot_05.webp", color: "#06b6d4" },
+  { tier: 5, name: "Mascot 6", filename: "mascot_06.webp", color: "#38bdf8" },
+  { tier: 6, name: "Mascot 7", filename: "mascot_07.webp", color: "#eab308" },
+  { tier: 7, name: "Mascot 8", filename: "mascot_08.webp", color: "#facc15" },
+  { tier: 8, name: "Mascot 9", filename: "mascot_09.webp", color: "#f97316" }
 ];
 
 export default function ScoreBoard({ score, highScore, nextMascotIndex, onRestart }) {
@@ -24,18 +28,18 @@ export default function ScoreBoard({ score, highScore, nextMascotIndex, onRestar
         </div>
         
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', marginTop: '1rem', borderTop: '1px solid rgba(255, 255, 255, 0.05)', paddingTop: '0.75rem' }}>
-          <Trophy size={16} color="var(--neon-green)" />
+          <Trophy size={16} color="var(--neon-blue)" />
           <span style={{ fontSize: '0.85rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '1px' }}>High Score:</span>
-          <span style={{ fontFamily: 'var(--hud)', fontWeight: 'bold', color: 'var(--neon-green)' }}>{highScore}</span>
+          <span style={{ fontFamily: 'var(--hud)', fontWeight: 'bold', color: 'var(--neon-blue)' }}>{highScore}</span>
         </div>
       </div>
 
       {/* Next Preview Panel */}
-      <div className="glass-panel-green" style={{ padding: '1.25rem', textAlign: 'center' }}>
+      <div className="glass-panel-blue" style={{ padding: '1.25rem', textAlign: 'center' }}>
         <div style={{ 
           fontFamily: 'var(--hud)', 
           fontSize: '0.85rem', 
-          color: 'var(--neon-green)', 
+          color: 'var(--neon-blue)', 
           letterSpacing: '2px', 
           marginBottom: '1rem',
           display: 'flex',
@@ -58,7 +62,7 @@ export default function ScoreBoard({ score, highScore, nextMascotIndex, onRestar
             position: 'relative',
             width: '64px',
             height: '64px',
-            borderRadius: '50%',
+            borderRadius: '8px',
             border: `3px solid ${nextMascot.color}`,
             boxShadow: `0 0 15px ${nextMascot.color}88`,
             overflow: 'hidden',
@@ -121,8 +125,8 @@ export default function ScoreBoard({ score, highScore, nextMascotIndex, onRestar
       
       <style>{`
         @keyframes pulse {
-          0% { transform: scale(0.96); box-shadow: 0 0 10px rgba(34, 197, 94, 0.4); }
-          100% { transform: scale(1.04); box-shadow: 0 0 20px rgba(34, 197, 94, 0.8); }
+          0% { transform: scale(0.96); box-shadow: 0 0 10px rgba(50, 106, 165, 0.4); }
+          100% { transform: scale(1.04); box-shadow: 0 0 20px rgba(50, 106, 165, 0.8); }
         }
       `}</style>
     </div>

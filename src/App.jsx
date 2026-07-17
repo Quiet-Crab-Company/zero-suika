@@ -20,6 +20,7 @@ export default function App() {
   const [muted, setMuted] = useState(() => {
     return localStorage.getItem('t9suika_muted') === 'true';
   });
+  const [isOverflowing, setIsOverflowing] = useState(false);
 
   // Sound generator utilizing Web Audio API (completely client-side synthesized, no asset dependencies)
   const playSound = (type, tier = 0) => {
@@ -103,6 +104,7 @@ export default function App() {
 
   const handleGameOver = () => {
     setIsGameOver(true);
+    setIsOverflowing(false);
     playSound('gameover');
   };
 
@@ -110,6 +112,7 @@ export default function App() {
     setScore(0);
     setCurrentTier(0);
     setIsGameOver(false);
+    setIsOverflowing(false);
     setNextMascotIndex(Math.floor(Math.random() * 5));
     setResetTrigger(prev => prev + 1);
   };
@@ -125,21 +128,38 @@ export default function App() {
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       
+      {/* Screen Red Glow on Overflow */}
+      {isOverflowing && <div className="screen-glow-red" />}
+
       {/* Top Tribe Nine Warning Tape Banner */}
-      <div className="warning-tape-container">
+      <div className={`warning-tape-container ${isOverflowing ? 'warning-tape-overflow' : ''}`}>
         <div className="warning-tape-content">
-          <span>TRIBE NINE</span>
-          <span>EXTREME BASEBALL</span>
-          <span>SYSTEM ACTIVE</span>
-          <span>TRIBE NINE</span>
-          <span>EXTREME BASEBALL</span>
-          <span>SYSTEM ACTIVE</span>
-          <span>TRIBE NINE</span>
-          <span>EXTREME BASEBALL</span>
-          <span>SYSTEM ACTIVE</span>
-          <span>TRIBE NINE</span>
-          <span>EXTREME BASEBALL</span>
-          <span>SYSTEM ACTIVE</span>
+          {isOverflowing ? (
+            <>
+              <span>DANGER!</span>
+              <span>CAUTION</span>
+              <span>DANGER!</span>
+              <span>CAUTION</span>
+              <span>DANGER!</span>
+              <span>CAUTION</span>
+              <span>DANGER!</span>
+              <span>CAUTION</span>
+              <span>DANGER!</span>
+              <span>CAUTION</span>
+            </>
+          ) : (
+            <>
+              <span>TRIBE NINE</span>
+              <span>EXTREME BASEBALL</span>
+              <span>SYSTEM ACTIVE</span>
+              <span>TRIBE NINE</span>
+              <span>EXTREME BASEBALL</span>
+              <span>SYSTEM ACTIVE</span>
+              <span>TRIBE NINE</span>
+              <span>EXTREME BASEBALL</span>
+              <span>SYSTEM ACTIVE</span>
+            </>
+          )}
         </div>
       </div>
 
@@ -150,18 +170,6 @@ export default function App() {
           <h1 className="game-title neon-text-purple" style={{ fontSize: '2rem', letterSpacing: '1px', textTransform: 'uppercase' }}>
             TRIBE NINE
           </h1>
-          <span style={{
-            fontFamily: 'var(--hud)',
-            background: 'rgba(34, 197, 94, 0.15)',
-            border: '1px solid var(--neon-green)',
-            color: 'var(--neon-green)',
-            fontSize: '0.7rem',
-            padding: '2px 6px',
-            borderRadius: '4px',
-            marginLeft: '0.5rem',
-            letterSpacing: '1px',
-            fontWeight: 'bold'
-          }}>SUIKA</span>
         </div>
 
         {/* Audio Mute HUD button */}
@@ -185,7 +193,7 @@ export default function App() {
           onMouseEnter={(e) => e.currentTarget.style.borderColor = 'var(--neon-purple)'}
           onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--border-neon)'}
         >
-          {muted ? <VolumeX size={16} color="var(--neon-magenta)" /> : <Volume2 size={16} color="var(--neon-green)" />}
+          {muted ? <VolumeX size={16} color="var(--neon-magenta)" /> : <Volume2 size={16} color="var(--neon-blue)" />}
           <span>{muted ? "AUDIO OFF" : "AUDIO ON"}</span>
         </button>
       </header>
@@ -219,6 +227,7 @@ export default function App() {
               setCurrentTier={setCurrentTier} 
               onMerge={handleMergeEvent}
               onDrop={handleDropEvent}
+              setIsOverflowing={setIsOverflowing}
             />
 
             {/* Game Over Screen Overlay */}
@@ -262,7 +271,7 @@ export default function App() {
                 </p>
 
                 <div 
-                  className="glass-panel-green"
+                  className="glass-panel-blue"
                   style={{
                     padding: '1rem 2rem',
                     marginBottom: '2rem',
@@ -270,7 +279,7 @@ export default function App() {
                     minWidth: '220px'
                   }}
                 >
-                  <div style={{ fontSize: '0.8rem', color: 'var(--neon-green)', fontFamily: 'var(--hud)', letterSpacing: '1px' }}>
+                  <div style={{ fontSize: '0.8rem', color: 'var(--neon-blue)', fontFamily: 'var(--hud)', letterSpacing: '1px' }}>
                     FINAL SCORE
                   </div>
                   <div style={{ fontSize: '2.2rem', fontFamily: 'var(--hud)', fontWeight: '900', color: '#fff' }}>
@@ -279,7 +288,7 @@ export default function App() {
                 </div>
 
                 <button 
-                  className="neon-btn neon-btn-green"
+                  className="neon-btn neon-btn-blue"
                   onClick={handleRestart}
                   style={{
                     padding: '1rem 2.5rem',
@@ -302,20 +311,34 @@ export default function App() {
       </main>
 
       {/* Bottom Tribe Nine Reverse Tape Banner */}
-      <div className="warning-tape-container warning-tape-green" style={{ marginTop: 'auto' }}>
+      <div className={`warning-tape-container ${isOverflowing ? 'warning-tape-overflow' : 'warning-tape-blue'}`} style={{ marginTop: 'auto' }}>
         <div className="warning-tape-content">
-          <span>TRIBE NINE</span>
-          <span>EXTREME BASEBALL</span>
-          <span>GAME ONGOING</span>
-          <span>TRIBE NINE</span>
-          <span>EXTREME BASEBALL</span>
-          <span>GAME ONGOING</span>
-          <span>TRIBE NINE</span>
-          <span>EXTREME BASEBALL</span>
-          <span>GAME ONGOING</span>
-          <span>TRIBE NINE</span>
-          <span>EXTREME BASEBALL</span>
-          <span>GAME ONGOING</span>
+          {isOverflowing ? (
+            <>
+              <span>DANGER!</span>
+              <span>CAUTION</span>
+              <span>DANGER!</span>
+              <span>CAUTION</span>
+              <span>DANGER!</span>
+              <span>CAUTION</span>
+              <span>DANGER!</span>
+              <span>CAUTION</span>
+              <span>DANGER!</span>
+              <span>CAUTION</span>
+            </>
+          ) : (
+            <>
+              <span>TRIBE NINE</span>
+              <span>EXTREME BASEBALL</span>
+              <span>GAME ONGOING</span>
+              <span>TRIBE NINE</span>
+              <span>EXTREME BASEBALL</span>
+              <span>GAME ONGOING</span>
+              <span>TRIBE NINE</span>
+              <span>EXTREME BASEBALL</span>
+              <span>GAME ONGOING</span>
+            </>
+          )}
         </div>
       </div>
 

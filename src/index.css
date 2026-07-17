@@ -1,13 +1,13 @@
 :root {
-  --neon-purple: #a855f7;
-  --neon-green: #22c55e;
-  --neon-magenta: #ec4899;
-  --neon-cyan: #06b6d4;
+  --neon-purple: #3d1ae6;      /* Block 3 Indigo */
+  --neon-blue: #1d5ae3;        /* Block 9 Bright Blue with dot */
+  --neon-magenta: #bc20a3;     /* Block 6 Magenta */
+  --neon-violet: #b423c8;      /* Block 1 Purple */
   --bg-dark: #090514;
   --bg-darker: #05020a;
-  --bg-panel: rgba(15, 8, 25, 0.75);
-  --border-neon: rgba(168, 85, 247, 0.3);
-  --border-neon-green: rgba(34, 197, 94, 0.3);
+  --bg-panel: rgba(45, 45, 58, 0.7); /* Block 4 Charcoal background for glass panels */
+  --border-neon: rgba(61, 26, 230, 0.4);
+  --border-neon-blue: rgba(29, 90, 227, 0.4);
   
   --sans: 'Rajdhani', sans-serif;
   --hud: 'Orbitron', sans-serif;
@@ -30,10 +30,10 @@ body {
   padding: 0;
   min-height: 100vh;
   background-image: 
-    radial-gradient(circle at 20% 30%, rgba(168, 85, 247, 0.15) 0%, transparent 40%),
-    radial-gradient(circle at 80% 70%, rgba(236, 48, 153, 0.12) 0%, transparent 45%),
-    linear-gradient(rgba(10, 5, 20, 0.95), rgba(10, 5, 20, 0.95)),
-    url('data:image/svg+xml;utf8,<svg width="40" height="40" xmlns="http://www.w3.org/2000/svg"><path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(168, 85, 247, 0.04)" stroke-width="1"/></svg>');
+    radial-gradient(circle at 20% 30%, rgba(61, 26, 230, 0.2) 0%, transparent 40%),
+    radial-gradient(circle at 80% 70%, rgba(188, 32, 163, 0.15) 0%, transparent 45%),
+    linear-gradient(rgba(10, 5, 20, 0.96), rgba(10, 5, 20, 0.96)),
+    url('data:image/svg+xml;utf8,<svg width="40" height="40" xmlns="http://www.w3.org/2000/svg"><path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(61, 26, 230, 0.04)" stroke-width="1"/></svg>');
   background-attachment: fixed;
 }
 
@@ -52,9 +52,9 @@ body {
   background: var(--bg-darker);
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--neon-purple);
+  background: var(--neon-blue);
   border-radius: 3px;
-  box-shadow: 0 0 8px var(--neon-purple);
+  box-shadow: 0 0 8px var(--neon-blue);
 }
 ::-webkit-scrollbar-thumb:hover {
   background: var(--neon-magenta);
@@ -67,32 +67,32 @@ body {
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--border-neon);
   box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5), 
-              inset 0 0 12px rgba(168, 85, 247, 0.1);
+              inset 0 0 12px rgba(61, 26, 230, 0.15);
   border-radius: 8px;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .glass-panel:hover {
-  border-color: rgba(168, 85, 247, 0.6);
-  box-shadow: 0 8px 32px 0 rgba(168, 85, 247, 0.2), 
-              inset 0 0 16px rgba(168, 85, 247, 0.15);
+  border-color: rgba(61, 26, 230, 0.6);
+  box-shadow: 0 8px 32px 0 rgba(61, 26, 230, 0.25), 
+              inset 0 0 16px rgba(61, 26, 230, 0.2);
 }
 
-.glass-panel-green {
+.glass-panel-blue {
   background: var(--bg-panel);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid var(--border-neon-green);
+  border: 1px solid var(--border-neon-blue);
   box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5), 
-              inset 0 0 12px rgba(34, 197, 94, 0.1);
+              inset 0 0 12px rgba(29, 90, 227, 0.15);
   border-radius: 8px;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.glass-panel-green:hover {
-  border-color: rgba(34, 197, 94, 0.6);
-  box-shadow: 0 8px 32px 0 rgba(34, 197, 94, 0.2), 
-              inset 0 0 16px rgba(34, 197, 94, 0.15);
+.glass-panel-blue:hover {
+  border-color: rgba(29, 90, 227, 0.6);
+  box-shadow: 0 8px 32px 0 rgba(29, 90, 227, 0.25), 
+              inset 0 0 16px rgba(29, 90, 227, 0.2);
 }
 
 /* Neon Text */
@@ -101,9 +101,9 @@ body {
   text-shadow: 0 0 5px #fff, 0 0 10px var(--neon-purple), 0 0 20px var(--neon-purple);
 }
 
-.neon-text-green {
+.neon-text-blue {
   color: #fff;
-  text-shadow: 0 0 5px #fff, 0 0 10px var(--neon-green), 0 0 20px var(--neon-green);
+  text-shadow: 0 0 5px #fff, 0 0 10px var(--neon-blue), 0 0 20px var(--neon-blue);
 }
 
 .neon-text-magenta {
@@ -115,7 +115,7 @@ body {
 .warning-tape-container {
   overflow: hidden;
   position: relative;
-  background: #a855f7; /* fallback */
+  background: var(--neon-violet);
   height: 38px;
   display: flex;
   align-items: center;
@@ -150,20 +150,20 @@ body {
   text-shadow: none;
 }
 
-/* Alternate Tape (Green/Black) */
-.warning-tape-green {
-  background: var(--neon-green);
+/* Alternate Tape (Blue/Black) */
+.warning-tape-blue {
+  background: var(--neon-blue);
   border-color: #000;
   transform: skewY(1.5deg);
 }
 
-.warning-tape-green .warning-tape-content {
-  color: #000;
+.warning-tape-blue .warning-tape-content {
+  color: #fff;
   animation: marquee-reverse 30s linear infinite;
 }
 
-.warning-tape-green .warning-tape-content span::after {
-  color: #fff;
+.warning-tape-blue .warning-tape-content span::after {
+  color: #000;
 }
 
 /* Animations */
@@ -191,7 +191,7 @@ body {
   position: relative;
   overflow: hidden;
   transition: all 0.3s;
-  box-shadow: 0 0 10px rgba(168, 85, 247, 0.2);
+  box-shadow: 0 0 10px rgba(61, 26, 230, 0.2);
 }
 
 .neon-btn::before {
@@ -215,16 +215,16 @@ body {
   border-color: #fff;
 }
 
-.neon-btn-green {
-  border-color: var(--neon-green);
-  box-shadow: 0 0 10px rgba(34, 197, 94, 0.2);
+.neon-btn-blue {
+  border-color: var(--neon-blue);
+  box-shadow: 0 0 10px rgba(29, 90, 227, 0.2);
 }
 
-.neon-btn-green:hover {
-  background: var(--neon-green);
-  box-shadow: 0 0 20px var(--neon-green);
-  border-color: #000;
-  color: #000;
+.neon-btn-blue:hover {
+  background: var(--neon-blue);
+  box-shadow: 0 0 20px var(--neon-blue);
+  border-color: #fff;
+  color: #fff;
 }
 
 /* Grid Layout */
@@ -267,4 +267,39 @@ body {
   .game-title {
     font-size: 2.2rem;
   }
+}
+
+/* Screen Glow Red Vignette on Overflow */
+.screen-glow-red {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  box-shadow: inset 0 0 100px rgba(239, 68, 68, 0.65), 
+              inset 0 0 200px rgba(239, 68, 68, 0.4);
+  pointer-events: none;
+  z-index: 9999;
+  animation: glow-pulse 0.8s infinite alternate ease-in-out;
+}
+
+@keyframes glow-pulse {
+  0% { opacity: 0.6; }
+  100% { opacity: 1; }
+}
+
+/* Red / White Warning tape stripes */
+.warning-tape-overflow {
+  background: #ef4444 !important;
+  border-color: #000 !important;
+  box-shadow: 0 0 25px rgba(239, 68, 68, 0.75) !important;
+}
+
+.warning-tape-overflow .warning-tape-content {
+  color: #fff !important;
+  animation-duration: 10s !important; /* speed it up for danger! */
+}
+
+.warning-tape-overflow .warning-tape-content span::after {
+  color: #000 !important;
 }

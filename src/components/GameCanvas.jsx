@@ -5,17 +5,13 @@ import confetti from 'canvas-confetti';
 const MASCOTS = [
   { tier: 0, name: "Mascot 1", filename: "mascot_01.webp", radius: 18, color: "#a855f7", score: 2 },
   { tier: 1, name: "Mascot 2", filename: "mascot_02.webp", radius: 24, color: "#c084fc", score: 4 },
-  { tier: 2, name: "Mascot 3", filename: "mascot_03.webp", radius: 30, color: "#22c55e", score: 8 },
-  { tier: 3, name: "Mascot 4", filename: "mascot_04.webp", radius: 37, color: "#4ade80", score: 16 },
+  { tier: 2, name: "Mascot 3", filename: "mascot_03.webp", radius: 30, color: "#326aa5", score: 8 },
+  { tier: 3, name: "Mascot 4", filename: "mascot_04.webp", radius: 37, color: "#60a5fa", score: 16 },
   { tier: 4, name: "Mascot 5", filename: "mascot_05.webp", radius: 44, color: "#06b6d4", score: 32 },
   { tier: 5, name: "Mascot 6", filename: "mascot_06.webp", radius: 52, color: "#38bdf8", score: 64 },
   { tier: 6, name: "Mascot 7", filename: "mascot_07.webp", radius: 60, color: "#eab308", score: 128 },
   { tier: 7, name: "Mascot 8", filename: "mascot_08.webp", radius: 68, color: "#facc15", score: 256 },
-  { tier: 8, name: "Mascot 9", filename: "mascot_09.webp", radius: 76, color: "#f97316", score: 512 },
-  { tier: 9, name: "Mascot 10", filename: "mascot_10.webp", radius: 84, color: "#fb923c", score: 1024 },
-  { tier: 10, name: "Mascot 11", filename: "mascot_11.webp", radius: 92, color: "#ef4444", score: 2048 },
-  { tier: 11, name: "Mascot 12", filename: "mascot_12.webp", radius: 100, color: "#f87171", score: 4096 },
-  { tier: 12, name: "Mascot 13", filename: "mascot_13.webp", radius: 110, color: "#ec4899", score: 8192 }
+  { tier: 8, name: "Mascot 9", filename: "mascot_09.webp", radius: 76, color: "#f97316", score: 512 }
 ];
 
 const WARNING_LINE_Y = 120;
@@ -34,7 +30,8 @@ export default function GameCanvas({
   resetTrigger,
   setCurrentTier,
   onMerge,
-  onDrop
+  onDrop,
+  setIsOverflowing
 }) {
   const canvasRef = useRef(null);
   
@@ -60,6 +57,7 @@ export default function GameCanvas({
   const canDropRef = useRef(canDrop);
   const isGameOverRef = useRef(isGameOver);
   const nextMascotIndexRef = useRef(nextMascotIndex);
+  const warningTimerRef = useRef(0);
 
   // Sync refs to avoid re-triggering main useEffect
   useEffect(() => { mouseXRef.current = mouseX; }, [mouseX]);
@@ -141,6 +139,7 @@ export default function GameCanvas({
 
     // Reset local warning timers
     warnTimeAccumulatorRef.current = 0;
+    warningTimerRef.current = 0;
     setWarningTimer(0);
 
     // 1. Create Engine
@@ -150,15 +149,16 @@ export default function GameCanvas({
     engineRef.current = engine;
 
     // 2. Create Static boundaries (rendered in CSS, invisible in canvas but static)
-    const floor = Matter.Bodies.rectangle(240, 674, 480, 12, {
+    // Thickened to 200px to completely prevent mascot tunneling during initial load or lag spikes
+    const floor = Matter.Bodies.rectangle(240, 768, 480, 200, {
       isStatic: true,
       friction: 0.1
     });
-    const leftWall = Matter.Bodies.rectangle(6, 340, WALL_WIDTH, 680, {
+    const leftWall = Matter.Bodies.rectangle(WALL_WIDTH - 100, 340, 200, 680, {
       isStatic: true,
       friction: 0.1
     });
-    const rightWall = Matter.Bodies.rectangle(474, 340, WALL_WIDTH, 680, {
+    const rightWall = Matter.Bodies.rectangle(480 - WALL_WIDTH + 100, 340, 200, 680, {
       isStatic: true,
       friction: 0.1
     });
@@ -252,12 +252,12 @@ export default function GameCanvas({
           });
 
           // Canvas confetti celebration
-          if (nextTier === 12) {
+          if (nextTier === 8) {
             confetti({
               particleCount: 100,
               spread: 70,
               origin: { y: 0.6 },
-              colors: ['#a855f7', '#ec4899', '#22c55e', '#06b6d4']
+              colors: ['#a855f7', '#ec4899', '#326aa5', '#06b6d4']
             });
           }
 
@@ -321,17 +321,10 @@ export default function GameCanvas({
         // Dropper hovering preview
         ctx.save();
         ctx.translate(clampedX, 80);
-        ctx.beginPath();
-        ctx.arc(0, 0, activeMascot.radius, 0, Math.PI * 2);
-        ctx.clip();
-        ctx.drawImage(images[currentMascotIndexRef.current], -activeMascot.radius, -activeMascot.radius, activeMascot.radius * 2, activeMascot.radius * 2);
+        if (images[currentMascotIndexRef.current]) {
+          ctx.drawImage(images[currentMascotIndexRef.current], -activeMascot.radius, -activeMascot.radius, activeMascot.radius * 2, activeMascot.radius * 2);
+        }
         ctx.restore();
-
-        ctx.beginPath();
-        ctx.arc(clampedX, 80, activeMascot.radius, 0, Math.PI * 2);
-        ctx.strokeStyle = activeMascot.color;
-        ctx.lineWidth = 3;
-        ctx.stroke();
       }
 
       // Draw merge particles on top
@@ -353,16 +346,16 @@ export default function GameCanvas({
   // Particle updates
   const createMergeParticles = (x, y, color) => {
     const list = particlesRef.current;
-    for (let i = 0; i < 18; i++) {
+    for (let i = 0; i < 26; i++) {
       list.push({
         x,
         y,
-        vx: (Math.random() - 0.5) * 6,
-        vy: (Math.random() - 0.5) * 6 - 3,
-        radius: Math.random() * 4 + 1.5,
+        vx: (Math.random() - 0.5) * 9,   // Slightly faster speed
+        vy: (Math.random() - 0.5) * 9 - 3,
+        size: Math.floor(Math.random() * 6) + 4, // 4px to 9px square blocks
         color,
         alpha: 1,
-        decay: Math.random() * 0.02 + 0.015
+        decay: Math.random() * 0.02 + 0.012
       });
     }
   };
@@ -373,7 +366,7 @@ export default function GameCanvas({
       const p = list[i];
       p.x += p.vx;
       p.y += p.vy;
-      p.vy += 0.12;
+      p.vy += 0.15; // Gravity pull on squares
       p.alpha -= p.decay;
       if (p.alpha <= 0) {
         list.splice(i, 1);
@@ -386,12 +379,12 @@ export default function GameCanvas({
     list.forEach(p => {
       ctx.save();
       ctx.globalAlpha = p.alpha;
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
       ctx.fillStyle = p.color;
       ctx.shadowColor = p.color;
-      ctx.shadowBlur = 10;
-      ctx.fill();
+      ctx.shadowBlur = 5; // Subtle glow for pixel-art clarity
+      
+      // Draw as square block
+      ctx.fillRect(p.x - p.size / 2, p.y - p.size / 2, p.size, p.size);
       ctx.restore();
     });
   };
@@ -415,14 +408,16 @@ export default function GameCanvas({
   };
 
   const drawWarningLine = (ctx) => {
+    const timeTicking = warningTimerRef.current > 0 && !isGameOverRef.current;
+
+    // Always draw the red dashed warning line
     ctx.save();
     ctx.beginPath();
     ctx.setLineDash([10, 5]);
     ctx.moveTo(WALL_WIDTH, WARNING_LINE_Y);
     ctx.lineTo(480 - WALL_WIDTH, WARNING_LINE_Y);
     
-    const timeTicking = warningTimer > 0;
-    ctx.strokeStyle = timeTicking ? '#ef4444' : 'rgba(236, 72, 153, 0.35)';
+    ctx.strokeStyle = timeTicking ? '#ef4444' : 'rgba(239, 68, 68, 0.3)';
     ctx.lineWidth = 2;
     if (timeTicking) {
       ctx.shadowColor = '#ef4444';
@@ -431,14 +426,16 @@ export default function GameCanvas({
     ctx.stroke();
     ctx.restore();
 
-    if (timeTicking && !isGameOverRef.current) {
+    // Only draw the countdown text label during active overflow
+    if (timeTicking) {
       ctx.save();
       ctx.fillStyle = '#ef4444';
       ctx.font = '900 12px Orbitron';
       ctx.textAlign = 'right';
       ctx.shadowColor = '#ef4444';
       ctx.shadowBlur = 6;
-      ctx.fillText(`OVERFLOW DETECTED: ${((2000 - warningTimer) / 1000).toFixed(1)}s`, 480 - WALL_WIDTH - 10, WARNING_LINE_Y - 8);
+      const remainingTime = Math.max(0, (2000 - warningTimerRef.current) / 1000);
+      ctx.fillText(`WARNING! OVERFLOW DETECTED: ${remainingTime.toFixed(1)}s`, 480 - WALL_WIDTH - 10, WARNING_LINE_Y - 8);
       ctx.restore();
     }
   };
@@ -450,24 +447,10 @@ export default function GameCanvas({
     ctx.save();
     ctx.translate(body.position.x, body.position.y);
     ctx.rotate(body.angle);
-
-    ctx.beginPath();
-    ctx.arc(0, 0, radius, 0, Math.PI * 2);
-    ctx.clip();
     
     if (img) {
       ctx.drawImage(img, -radius, -radius, radius * 2, radius * 2);
     }
-    ctx.restore();
-
-    ctx.save();
-    ctx.beginPath();
-    ctx.arc(body.position.x, body.position.y, radius, 0, Math.PI * 2);
-    ctx.strokeStyle = MASCOTS[tier].color;
-    ctx.lineWidth = radius < 25 ? 2 : 3;
-    ctx.shadowColor = MASCOTS[tier].color;
-    ctx.shadowBlur = radius < 30 ? 6 : 10;
-    ctx.stroke();
     ctx.restore();
   };
 
@@ -490,14 +473,22 @@ export default function GameCanvas({
     if (isViolating) {
       warnTimeAccumulatorRef.current += dt;
       const currentWarnTime = Math.min(2000, warnTimeAccumulatorRef.current);
+      warningTimerRef.current = currentWarnTime;
       setWarningTimer(currentWarnTime);
+      if (setIsOverflowing) setIsOverflowing(true);
       
       if (currentWarnTime >= 2000) {
         onGameOver();
+        if (setIsOverflowing) setIsOverflowing(false);
       }
     } else {
       warnTimeAccumulatorRef.current = Math.max(0, warnTimeAccumulatorRef.current - dt * 1.5);
-      setWarningTimer(Math.round(warnTimeAccumulatorRef.current));
+      const roundedTime = Math.round(warnTimeAccumulatorRef.current);
+      warningTimerRef.current = roundedTime;
+      setWarningTimer(roundedTime);
+      if (roundedTime === 0 && setIsOverflowing) {
+        setIsOverflowing(false);
+      }
     }
   };
 
@@ -520,6 +511,10 @@ export default function GameCanvas({
   const handleDrop = () => {
     if (!canDropRef.current || isGameOverRef.current || loading || !images || !engineRef.current) return;
 
+    // Synchronously lock dropper immediately to prevent overlapping duplicate spawns
+    canDropRef.current = false;
+    setCanDrop(false);
+
     const activeMascot = MASCOTS[currentMascotIndexRef.current];
     const clampedX = getClampedX(mouseXRef.current, activeMascot.radius);
     
@@ -534,8 +529,6 @@ export default function GameCanvas({
     });
 
     Matter.Composite.add(engineRef.current.world, body);
-    
-    setCanDrop(false);
     
     // Trigger drop audio
     if (onDrop) onDrop();
