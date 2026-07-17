@@ -156,15 +156,17 @@ export default function GameCanvas({
           setCurrentTier(nextTier);
           if (onMerge) onMerge(nextTier);
 
-          const addedScore = newMascotDef.score;
-          setScore(prev => {
-            const nextScore = prev + addedScore;
-            if (nextScore > highScore) {
-              setHighScore(nextScore);
-              localStorage.setItem('t9suika_highscore', String(nextScore));
-            }
-            return nextScore;
-          });
+          if (!isGameOverRef.current) {
+            const addedScore = newMascotDef.score;
+            setScore(prev => {
+              const nextScore = prev + addedScore;
+              if (nextScore > highScore) {
+                setHighScore(nextScore);
+                localStorage.setItem('t9suika_highscore', String(nextScore));
+              }
+              return nextScore;
+            });
+          }
 
           if (nextTier === 8) {
             confetti({
@@ -184,14 +186,16 @@ export default function GameCanvas({
             colors: ['#f97316', '#a855f7', '#ec4899', '#326aa5', '#06b6d4']
           });
 
-          setScore(prev => {
-            const nextScore = prev + 1000;
-            if (nextScore > highScore) {
-              setHighScore(nextScore);
-              localStorage.setItem('t9suika_highscore', String(nextScore));
-            }
-            return nextScore;
-          });
+          if (!isGameOverRef.current) {
+            setScore(prev => {
+              const nextScore = prev + 1000;
+              if (nextScore > highScore) {
+                setHighScore(nextScore);
+                localStorage.setItem('t9suika_highscore', String(nextScore));
+              }
+              return nextScore;
+            });
+          }
 
           if (onMerge) onMerge(8);
           createMergeParticles(x, y, '#f97316');
