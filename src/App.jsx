@@ -682,6 +682,17 @@ export default function App() {
               </svg>
             </a>
           </div>
+          <p style={{
+            fontFamily: 'var(--hud)',
+            fontSize: '0.65rem',
+            color: '#475569',
+            textAlign: 'center',
+            lineHeight: '1.5',
+            marginTop: '0.5rem',
+            padding: '0 0.5rem'
+          }}>
+            This is a non-profit fanmade game for the series Tribe Nine. Both Tribe Nine and Suika game belongs to their respective owner.
+          </p>
         </section>
       </main>
 
