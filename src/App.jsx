@@ -87,6 +87,8 @@ export default function App() {
   }, []);
 
   const bgmRef = useRef(null);
+  const sfxContextRef = useRef(null);
+  const gameOverAudioRef = useRef(null);
 
   useEffect(() => {
     const audio = new Audio(`${import.meta.env.BASE_URL}すやすやタイム.mp3`);
@@ -94,10 +96,27 @@ export default function App() {
     audio.volume = 0.25; 
     bgmRef.current = audio;
 
+    const goAudio = new Audio(`${import.meta.env.BASE_URL}game-over.mp3`);
+    goAudio.volume = 0.35;
+    gameOverAudioRef.current = goAudio;
+
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    if (AudioContextClass) {
+      sfxContextRef.current = new AudioContextClass();
+    }
+
     return () => {
       audio.pause();
       audio.src = '';
       bgmRef.current = null;
+
+      goAudio.src = '';
+      gameOverAudioRef.current = null;
+
+      if (sfxContextRef.current && sfxContextRef.current.state !== 'closed') {
+        sfxContextRef.current.close();
+        sfxContextRef.current = null;
+      }
     };
   }, []);
 
@@ -134,12 +153,20 @@ export default function App() {
   const playSound = (type, tier = 0) => {
     if (muted) return;
     try {
-      const AudioContext = window.AudioContext || window.webkitAudioContext;
-      if (!AudioContext) return;
-      const ctx = new AudioContext();
+      if (type === 'gameover') {
+        const goAudio = gameOverAudioRef.current;
+        if (goAudio) {
+          goAudio.currentTime = 0;
+          goAudio.play().catch(e => console.log('Game Over SFX play failed:', e));
+        }
+        return;
+      }
+
+      const ctx = sfxContextRef.current;
+      if (!ctx) return;
+      if (ctx.state === 'suspended') ctx.resume();
 
       if (type === 'merge') {
-        
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
 
@@ -156,7 +183,6 @@ export default function App() {
         osc.start();
         osc.stop(ctx.currentTime + 0.18);
       } else if (type === 'drop') {
-        
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
 
@@ -171,10 +197,6 @@ export default function App() {
         gain.connect(ctx.destination);
         osc.start();
         osc.stop(ctx.currentTime + 0.08);
-      } else if (type === 'gameover') {
-        const audio = new Audio(`${import.meta.env.BASE_URL}game-over.mp3`);
-        audio.volume = 0.35;
-        audio.play().catch(e => console.log('Game Over SFX play failed:', e));
       }
     } catch (e) {
       console.warn('AudioContext failed to trigger:', e);

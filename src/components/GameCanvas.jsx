@@ -276,16 +276,14 @@ export default function GameCanvas({
 
   const updateParticles = () => {
     const list = particlesRef.current;
-    for (let i = list.length - 1; i >= 0; i--) {
+    for (let i = 0; i < list.length; i++) {
       const p = list[i];
       p.x += p.vx;
       p.y += p.vy;
       p.vy += 0.15; 
       p.alpha -= p.decay;
-      if (p.alpha <= 0) {
-        list.splice(i, 1);
-      }
     }
+    particlesRef.current = list.filter(p => p.alpha > 0);
   };
 
   const drawParticles = (ctx) => {
