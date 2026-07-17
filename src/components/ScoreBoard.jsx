@@ -1,134 +1,175 @@
 import React from 'react';
-import { RotateCcw, Trophy, ArrowRight, Eye } from 'lucide-react';
+import { RotateCcw, Trophy, Eye } from 'lucide-react';
+import { MASCOTS } from '../config/mascots';
 
-const MASCOTS = [
-  { tier: 0, name: "Mascot 1", filename: "mascot_01.webp", color: "#a855f7" },
-  { tier: 1, name: "Mascot 2", filename: "mascot_02.webp", color: "#c084fc" },
-  { tier: 2, name: "Mascot 3", filename: "mascot_03.webp", color: "#326aa5" },
-  { tier: 3, name: "Mascot 4", filename: "mascot_04.webp", color: "#60a5fa" },
-  { tier: 4, name: "Mascot 5", filename: "mascot_05.webp", color: "#06b6d4" },
-  { tier: 5, name: "Mascot 6", filename: "mascot_06.webp", color: "#38bdf8" },
-  { tier: 6, name: "Mascot 7", filename: "mascot_07.webp", color: "#eab308" },
-  { tier: 7, name: "Mascot 8", filename: "mascot_08.webp", color: "#facc15" },
-  { tier: 8, name: "Mascot 9", filename: "mascot_09.webp", color: "#f97316" }
-];
-
-export default function ScoreBoard({ score, highScore, nextMascotIndex, onRestart }) {
-  const nextMascot = MASCOTS[nextMascotIndex] || MASCOTS[0];
-
+export function ScorePanel({ score, highScore, lang }) {
+  const isJp = lang === 'jp';
   return (
-    <div className="scoreboard-container">
-      {/* Score Panel */}
-      <div className="glass-panel" style={{ padding: '1.5rem', textAlign: 'center' }}>
-        <div style={{ fontFamily: 'var(--hud)', fontSize: '0.9rem', color: 'var(--neon-purple)', letterSpacing: '2px', marginBottom: '0.25rem' }}>
-          SCORE
-        </div>
-        <div style={{ fontFamily: 'var(--hud)', fontSize: '3rem', fontWeight: '900', color: '#fff', textShadow: '0 0 15px rgba(168, 85, 247, 0.6)', margin: '0.25rem 0' }}>
-          {score}
-        </div>
-        
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', marginTop: '1rem', borderTop: '1px solid rgba(255, 255, 255, 0.05)', paddingTop: '0.75rem' }}>
-          <Trophy size={16} color="var(--neon-blue)" />
-          <span style={{ fontSize: '0.85rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '1px' }}>High Score:</span>
-          <span style={{ fontFamily: 'var(--hud)', fontWeight: 'bold', color: 'var(--neon-blue)' }}>{highScore}</span>
-        </div>
+    <div className="glass-panel" style={{ padding: '1.5rem', textAlign: 'center' }}>
+      <div style={{ fontFamily: 'var(--hud)', fontSize: '0.9rem', color: '#ffffff', letterSpacing: '2px', marginBottom: '0.25rem' }}>
+        {isJp ? 'スコア' : 'SCORE'}
       </div>
-
-      {/* Next Preview Panel */}
-      <div className="glass-panel-blue" style={{ padding: '1.25rem', textAlign: 'center' }}>
-        <div style={{ 
-          fontFamily: 'var(--hud)', 
-          fontSize: '0.85rem', 
-          color: 'var(--neon-blue)', 
-          letterSpacing: '2px', 
-          marginBottom: '1rem',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: '0.5rem'
-        }}>
-          <Eye size={14} />
-          <span>UPCOMING DROP</span>
-        </div>
-        
-        <div style={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '0.75rem 0'
-        }}>
-          <div style={{
-            position: 'relative',
-            width: '64px',
-            height: '64px',
-            borderRadius: '8px',
-            border: `3px solid ${nextMascot.color}`,
-            boxShadow: `0 0 15px ${nextMascot.color}88`,
-            overflow: 'hidden',
-            background: '#1a102f',
-            marginBottom: '0.75rem',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            animation: 'pulse 2s infinite alternate'
-          }}>
-            <img 
-              src={`${import.meta.env.BASE_URL}assets/${nextMascot.filename}`} 
-              alt={nextMascot.name} 
-              style={{
-                width: '100%',
-                height: '100%',
-                objectFit: 'cover'
-              }}
-            />
-          </div>
-          <div style={{ 
-            fontFamily: 'var(--hud)', 
-            fontWeight: '700', 
-            fontSize: '0.9rem',
-            color: '#fff',
-            textTransform: 'uppercase'
-          }}>
-            Tier {nextMascotIndex + 1}
-          </div>
-        </div>
-      </div>
-
-      {/* Restart Button */}
-      <button 
-        className="neon-btn" 
-        onClick={onRestart}
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: '0.75rem',
-          width: '100%',
-          padding: '1rem'
-        }}
-      >
-        <RotateCcw size={18} />
-        <span>RESTART SESSION</span>
-      </button>
-
-      {/* Game instructions */}
-      <div className="glass-panel" style={{ padding: '1rem', fontSize: '0.85rem', color: '#64748b', textAlign: 'left', lineHeight: '1.4' }}>
-        <div style={{ fontFamily: 'var(--hud)', fontWeight: 'bold', color: '#fff', marginBottom: '0.5rem', fontSize: '0.9rem' }}>HOW TO PLAY:</div>
-        <ul style={{ paddingLeft: '1.25rem', margin: 0, display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-          <li>Move cursor/finger horizontally over the box to aim.</li>
-          <li>Click or tap to drop the mascot.</li>
-          <li>Match two identical mascots to merge them into a larger one!</li>
-          <li>Avoid crossing the upper warning line for more than 2 seconds.</li>
-        </ul>
+      <div style={{ fontFamily: 'var(--hud)', fontSize: '3rem', fontWeight: '900', color: '#fff', textShadow: '0 0 15px rgba(168, 85, 247, 0.6)', margin: '0.25rem 0' }}>
+        {score}
       </div>
       
-      <style>{`
-        @keyframes pulse {
-          0% { transform: scale(0.96); box-shadow: 0 0 10px rgba(50, 106, 165, 0.4); }
-          100% { transform: scale(1.04); box-shadow: 0 0 20px rgba(50, 106, 165, 0.8); }
-        }
-      `}</style>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', marginTop: '1rem', borderTop: '1px solid rgba(255, 255, 255, 0.05)', paddingTop: '0.75rem' }}>
+        <Trophy size={16} color="var(--neon-blue)" />
+        <span style={{ fontSize: '0.85rem', color: '#ffffff', textTransform: 'uppercase', letterSpacing: '1px' }}>
+          {isJp ? 'ハイスコア:' : 'High Score:'}
+        </span>
+        <span style={{ fontFamily: 'var(--hud)', fontWeight: 'bold', color: '#ffffff' }}>{highScore}</span>
+      </div>
+    </div>
+  );
+}
+
+export function UpcomingDrop({ nextMascotIndex, lang }) {
+  const nextMascot = MASCOTS[nextMascotIndex] || MASCOTS[0];
+  const isJp = lang === 'jp';
+  return (
+    <div className="glass-panel-blue" style={{ padding: '1.25rem', textAlign: 'center' }}>
+      <div style={{ 
+        fontFamily: 'var(--hud)', 
+        fontSize: '0.85rem', 
+        color: '#ec4899', 
+        letterSpacing: '2px', 
+        marginBottom: '1rem',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: '0.5rem'
+      }}>
+        <Eye size={14} />
+        <span>{isJp ? '次のドロップ' : 'UPCOMING DROP'}</span>
+      </div>
+      
+      <div style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '0.75rem 0'
+      }}>
+        <div style={{
+          position: 'relative',
+          width: '64px',
+          height: '64px',
+          marginBottom: 0,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          animation: 'scale-pulse 2s infinite alternate ease-in-out'
+        }}>
+          <img 
+            src={`${import.meta.env.BASE_URL}assets/${nextMascot.filename}`} 
+            alt={nextMascot.name.en} 
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'contain'
+            }}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export function RestartButton({ onRestart, lang }) {
+  const isJp = lang === 'jp';
+  return (
+    <button 
+      className="neon-btn" 
+      onClick={onRestart}
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: '0.75rem',
+        width: '100%',
+        padding: '1rem'
+      }}
+    >
+      <RotateCcw size={18} />
+      <span>{isJp ? 'ゲームリスタート' : 'RESTART GAME'}</span>
+    </button>
+  );
+}
+
+export function HowToPlay({ lang }) {
+  const isJp = lang === 'jp';
+  return (
+    <div className="glass-panel" style={{ padding: '1rem', fontSize: '0.85rem', color: '#ffffff', textAlign: 'left', lineHeight: '1.4' }}>
+      <div style={{ fontFamily: 'var(--hud)', fontWeight: 'bold', color: '#fff', marginBottom: '0.5rem', fontSize: '0.9rem' }}>
+        {isJp ? 'プレイ方法:' : 'HOW TO PLAY:'}
+      </div>
+      <ul style={{ paddingLeft: '1.25rem', margin: 0, display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+        {isJp ? (
+          <>
+            <li>ボックスの上で指やカーソルを左右に動かして狙います。</li>
+            <li>クリックまたはタップしてマスコットを落とします。</li>
+            <li>同じマスコットを2つ合わせると、より大きなマスコットに進化します！</li>
+            <li>上部の警告ラインを2秒以上超えないようにしてください。</li>
+          </>
+        ) : (
+          <>
+            <li>Move cursor/finger horizontally over the box to aim.</li>
+            <li>Click or tap to drop the mascot.</li>
+            <li>Match two identical mascots to merge them into a larger one!</li>
+            <li>Avoid crossing the upper warning line for more than 2 seconds.</li>
+          </>
+        )}
+      </ul>
+    </div>
+  );
+}
+
+export function DailyScores({ dailyScores, lang }) {
+  const isJp = lang === 'jp';
+  return (
+    <div className="glass-panel" style={{ padding: '1rem', textAlign: 'center' }}>
+      <div style={{
+        fontFamily: 'var(--hud)',
+        fontSize: '0.85rem',
+        color: '#ffffff',
+        letterSpacing: '1px',
+        textTransform: 'uppercase',
+        marginBottom: '0.75rem',
+        borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
+        paddingBottom: '0.5rem'
+      }}>
+        {isJp ? '本日のトップ3' : 'DAILY TOP 3'}
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+        {dailyScores.map((s, index) => (
+          <div key={index} style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            fontSize: '0.9rem',
+            fontFamily: 'var(--hud)',
+            color: index === 0 ? 'var(--neon-blue)' : '#ffffff',
+            background: 'rgba(255, 255, 255, 0.02)',
+            padding: '0.35rem 1rem',
+            borderRadius: '4px',
+            border: '1px solid rgba(255, 255, 255, 0.03)'
+          }}>
+            <span style={{ opacity: 0.6 }}>#{index + 1}</span>
+            <span style={{ fontWeight: 'bold' }}>{s}</span>
+          </div>
+        ))}
+        {dailyScores.length === 0 && (
+          <div style={{
+            fontSize: '0.85rem',
+            color: '#64748b',
+            textAlign: 'center',
+            fontStyle: 'italic',
+            padding: '0.5rem'
+          }}>
+            {isJp ? '本日まだ記録がありません' : 'No scores logged today'}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

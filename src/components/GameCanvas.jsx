@@ -2,17 +2,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import Matter from 'matter-js';
 import confetti from 'canvas-confetti';
 
-const MASCOTS = [
-  { tier: 0, name: "Mascot 1", filename: "mascot_01.webp", radius: 18, color: "#a855f7", score: 2 },
-  { tier: 1, name: "Mascot 2", filename: "mascot_02.webp", radius: 24, color: "#c084fc", score: 4 },
-  { tier: 2, name: "Mascot 3", filename: "mascot_03.webp", radius: 30, color: "#326aa5", score: 8 },
-  { tier: 3, name: "Mascot 4", filename: "mascot_04.webp", radius: 37, color: "#60a5fa", score: 16 },
-  { tier: 4, name: "Mascot 5", filename: "mascot_05.webp", radius: 44, color: "#06b6d4", score: 32 },
-  { tier: 5, name: "Mascot 6", filename: "mascot_06.webp", radius: 52, color: "#38bdf8", score: 64 },
-  { tier: 6, name: "Mascot 7", filename: "mascot_07.webp", radius: 60, color: "#eab308", score: 128 },
-  { tier: 7, name: "Mascot 8", filename: "mascot_08.webp", radius: 68, color: "#facc15", score: 256 },
-  { tier: 8, name: "Mascot 9", filename: "mascot_09.webp", radius: 76, color: "#f97316", score: 512 }
-];
+import { MASCOTS } from '../config/mascots';
+
 
 const WARNING_LINE_Y = 120;
 const DROP_COOLDOWN = 600; // ms
@@ -562,16 +553,16 @@ export default function GameCanvas({
         flexDirection: 'column',
         alignItems: 'center',
         position: 'relative',
-        width: '480px',
+        width: '100%',
         margin: '0 auto',
-        maxWidth: '100%'
+        maxWidth: '520px'
       }}
     >
       <div 
         style={{
           position: 'relative',
           width: '100%',
-          maxWidth: '480px',
+          maxWidth: '520px',
           aspectRatio: '480 / 680',
           background: 'rgba(5, 2, 10, 0.85)',
           borderLeft: '4px solid rgba(168, 85, 247, 0.4)',

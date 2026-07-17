@@ -229,7 +229,7 @@ body {
 
 /* Grid Layout */
 .game-container {
-  max-width: 1200px;
+  max-width: 1400px;
   width: 100%;
   margin: 0 auto;
   padding: 2rem 1rem;
@@ -246,14 +246,6 @@ body {
   width: 100%;
 }
 
-.mergechart-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  max-height: 480px;
-  overflow-y: auto;
-  padding-right: 0.25rem;
-}
 
 @media (max-width: 1024px) {
   .game-container {
@@ -300,22 +292,18 @@ body {
     grid-column: span 1;
   }
 
-  .mergechart-list {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-    max-height: none;
-    overflow-y: visible;
-  }
 
-  .mergechart-arrow {
-    display: none;
-  }
 }
 
 /* Game Title */
 .game-header {
-  text-align: center;
-  padding: 2rem 1rem 1rem;
+  max-width: 1400px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 1.5rem 1rem 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   position: relative;
 }
 
@@ -367,4 +355,67 @@ body {
 
 .warning-tape-overflow .warning-tape-content span::after {
   color: #000 !important;
+}
+
+@keyframes scale-pulse {
+  0% { transform: scale(0.95); }
+  100% { transform: scale(1.05); }
+}
+
+@media (max-width: 768px) {
+  .warning-tape-container {
+    display: none;
+  }
+  .game-header {
+    padding: 0.75rem 1.25rem 0.25rem;
+  }
+  .game-title {
+    font-size: 1.4rem !important;
+  }
+}
+
+.mobile-score-hud {
+  display: none;
+}
+
+.mobile-score-card {
+  flex: 1;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-neon);
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--hud);
+  font-size: 0.9rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.mobile-score-card .label {
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.mobile-score-card .value {
+  color: #fff;
+  font-weight: 900;
+  text-shadow: 0 0 10px rgba(168, 85, 247, 0.4);
+}
+
+@media (max-width: 1024px) {
+  .desktop-score-panel {
+    display: none !important;
+  }
+  
+  .mobile-score-hud {
+    display: flex !important;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    max-width: 520px;
+    margin-bottom: 0.75rem;
+    gap: 1rem;
+  }
 }

@@ -1,110 +1,144 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { MASCOTS } from '../config/mascots';
 
-const MASCOTS = [
-  { tier: 0, name: "Mascot 1", filename: "mascot_01.webp", radius: 18, color: "#a855f7" },
-  { tier: 1, name: "Mascot 2", filename: "mascot_02.webp", radius: 24, color: "#c084fc" },
-  { tier: 2, name: "Mascot 3", filename: "mascot_03.webp", radius: 30, color: "#326aa5" },
-  { tier: 3, name: "Mascot 4", filename: "mascot_04.webp", radius: 37, color: "#60a5fa" },
-  { tier: 4, name: "Mascot 5", filename: "mascot_05.webp", radius: 44, color: "#06b6d4" },
-  { tier: 5, name: "Mascot 6", filename: "mascot_06.webp", radius: 52, color: "#38bdf8" },
-  { tier: 6, name: "Mascot 7", filename: "mascot_07.webp", radius: 60, color: "#eab308" },
-  { tier: 7, name: "Mascot 8", filename: "mascot_08.webp", radius: 68, color: "#facc15" },
-  { tier: 8, name: "Mascot 9", filename: "mascot_09.webp", radius: 76, color: "#f97316" }
-];
+export default function MergeChart({ currentTier, lang }) {
+  const [hoveredIndex, setHoveredIndex] = useState(null);
 
-export default function MergeChart({ currentTier }) {
+  const centerMascot = MASCOTS[8];
+  const surroundingMascots = MASCOTS.slice(0, 8);
+
+  const containerSize = 300;
+  const centerCoord = containerSize / 2;
+  const radius = 98;
+
+  const isJp = lang === 'jp';
+
   return (
-    <div className="glass-panel" style={{ padding: '1.5rem', width: '100%' }}>
+    <div className="glass-panel" style={{ padding: '1.5rem', width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
       <div style={{
         fontFamily: 'var(--hud)',
-        fontSize: '1.25rem',
+        fontSize: '1.2rem',
         fontWeight: 'bold',
         letterSpacing: '1px',
         borderBottom: '1px solid var(--border-neon)',
         paddingBottom: '0.75rem',
-        marginBottom: '1rem',
+        marginBottom: '1.5rem',
         color: '#fff',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center'
+        width: '100%'
       }}>
-        <span>EVOLUTION CHAIN</span>
-        <span style={{ fontSize: '0.8rem', color: 'var(--neon-purple)' }}>9 TIERS</span>
+        <span>{isJp ? '進化の輪' : 'EVOLUTION WHEEL'}</span>
       </div>
-      
-      <div className="mergechart-list">
-        {MASCOTS.map((m) => {
-          const isActive = currentTier === m.tier;
+
+      {/* Wheel Area */}
+      <div style={{
+        position: 'relative',
+        width: `${containerSize}px`,
+        height: `${containerSize}px`
+      }}>
+        <svg style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none' }}>
+          {/* Circular track showing flow from tier 1 (top, index 0) clockwise */}
+          <circle cx={centerCoord} cy={centerCoord} r={radius} fill="none" stroke="rgba(168, 85, 247, 0.15)" strokeWidth="4" />
+          <circle cx={centerCoord} cy={centerCoord} r={radius} fill="none" stroke="rgba(168, 85, 247, 0.4)" strokeWidth="2" strokeDasharray="6,8" />
+        </svg>
+
+        {/* Center Element: Top Tier 9 */}
+        {(() => {
+          const isCenterActive = currentTier === 8;
+          const isCenterHovered = hoveredIndex === 8;
+          const centerSize = 90;
+
           return (
-            <div 
-              key={m.tier}
+            <div
+              onMouseEnter={() => setHoveredIndex(8)}
+              onMouseLeave={() => setHoveredIndex(null)}
               style={{
+                position: 'absolute',
+                width: `${centerSize}px`,
+                height: `${centerSize}px`,
+                left: `${centerCoord - centerSize / 2}px`,
+                top: `${centerCoord - centerSize / 2}px`,
                 display: 'flex',
                 alignItems: 'center',
-                gap: '0.75rem',
-                padding: '0.5rem 0.75rem',
-                borderRadius: '6px',
-                background: isActive ? 'rgba(168, 85, 247, 0.2)' : 'rgba(255, 255, 255, 0.02)',
-                border: isActive ? `1px solid ${m.color}` : '1px solid rgba(255, 255, 255, 0.05)',
-                boxShadow: isActive ? `0 0 10px ${m.color}44` : 'none',
-                transition: 'all 0.2s'
+                justifyContent: 'center',
+                cursor: 'pointer',
+                transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                transform: isCenterHovered ? 'scale(1.15)' : 'scale(1)',
+                zIndex: 10
               }}
             >
-              <div style={{
-                fontFamily: 'var(--hud)',
-                fontSize: '0.9rem',
-                width: '24px',
-                color: isActive ? m.color : '#64748b',
-                fontWeight: 'bold'
-              }}>
-                {String(m.tier + 1).padStart(2, '0')}
-              </div>
-              
-              <div style={{
-                position: 'relative',
-                width: '36px',
-                height: '36px',
-                borderRadius: '6px',
-                border: `2px solid ${m.color}`,
-                boxShadow: `0 0 8px ${m.color}66`,
-                overflow: 'hidden',
-                background: '#1a102f',
+              <img
+                src={`${import.meta.env.BASE_URL}assets/${centerMascot.filename}`}
+                alt={centerMascot.name.en}
+                style={{
+                  width: '90%',
+                  height: '90%',
+                  objectFit: 'contain',
+                  filter: isCenterActive || isCenterHovered 
+                    ? `drop-shadow(0 0 8px ${centerMascot.color})` 
+                    : 'grayscale(80%) opacity(40%)',
+                  transition: 'all 0.2s'
+                }}
+              />
+            </div>
+          );
+        })()}
+
+        {/* Surrounding Elements (Tiers 1 to 8) */}
+        {surroundingMascots.map((m, index) => {
+          const angle = -Math.PI / 2 + index * (Math.PI / 4); // Start at top, go clockwise
+          const x = centerCoord + radius * Math.cos(angle);
+          const y = centerCoord + radius * Math.sin(angle);
+          const isItemActive = currentTier >= m.tier;
+          const isItemCurrentlyHighlighted = currentTier === m.tier;
+          const isItemHovered = hoveredIndex === index;
+          const size = 48;
+          const left = x - size / 2;
+          const top = y - size / 2;
+
+          return (
+            <div
+              key={m.tier}
+              onMouseEnter={() => setHoveredIndex(index)}
+              onMouseLeave={() => setHoveredIndex(null)}
+              style={{
+                position: 'absolute',
+                width: `${size}px`,
+                height: `${size}px`,
+                left: `${left}px`,
+                top: `${top}px`,
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'center'
-              }}>
-                <img 
-                  src={`${import.meta.env.BASE_URL}assets/${m.filename}`} 
-                  alt={m.name} 
-                  style={{
-                    width: '100%',
-                    height: '100%',
-                    objectFit: 'cover'
-                  }}
-                  onError={(e) => {
-                    // Fallback visual if image fails to load
-                    e.target.style.display = 'none';
-                  }}
-                />
-              </div>
-              
-              <div style={{ flex: 1, textAlign: 'left' }}>
-                <div style={{ 
-                  fontWeight: '600', 
-                  fontSize: '0.95rem',
-                  color: isActive ? '#fff' : '#cbd5e1' 
-                }}>
-                  {m.tier === 8 ? '⚾ CROWNED CHAMP' : `Tier ${m.tier + 1}`}
-                </div>
-                <div style={{ fontSize: '0.75rem', color: '#64748b' }}>
-                  Radius: {m.radius}px
-                </div>
-              </div>
-
-              {m.tier < 8 && (
-                <div className="mergechart-arrow" style={{ fontSize: '0.8rem', color: '#475569' }}>
-                  →
-                </div>
+                justifyContent: 'center',
+                cursor: 'pointer',
+                transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                transform: isItemHovered ? 'scale(1.2)' : (isItemCurrentlyHighlighted ? 'scale(1.1)' : 'scale(1)'),
+                zIndex: 5
+              }}
+            >
+              <img
+                src={`${import.meta.env.BASE_URL}assets/${m.filename}`}
+                alt={m.name.en}
+                style={{
+                  width: '90%',
+                  height: '90%',
+                  objectFit: 'contain',
+                  filter: isItemCurrentlyHighlighted || isItemHovered
+                    ? `drop-shadow(0 0 6px ${m.color})`
+                    : (isItemActive ? 'none' : 'grayscale(100%) opacity(20%)'),
+                  transition: 'all 0.2s'
+                }}
+              />
+              {/* Active check dot */}
+              {isItemCurrentlyHighlighted && (
+                <div style={{
+                  position: 'absolute',
+                  bottom: '-4px',
+                  width: '6px',
+                  height: '6px',
+                  borderRadius: '50%',
+                  background: m.color,
+                  boxShadow: `0 0 6px ${m.color}`
+                }} />
               )}
             </div>
           );
