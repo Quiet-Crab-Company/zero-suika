@@ -272,20 +272,11 @@ export default function GameCanvas({
       ctx.clearRect(0, 0, 480, 680);
       drawBackgroundGrid(ctx);
       drawWarningLine(ctx);
+      drawGlassBox(ctx);
 
       // Draw all bodies
       allActiveBodies.forEach((body) => {
-        if (body.isStatic) {
-          // Draw static boundaries
-          ctx.fillStyle = 'rgba(168, 85, 247, 0.2)';
-          ctx.beginPath();
-          if (body.vertices.length > 0) {
-            ctx.moveTo(body.vertices[0].x, body.vertices[0].y);
-            body.vertices.forEach(v => ctx.lineTo(v.x, v.y));
-            ctx.closePath();
-            ctx.fill();
-          }
-        } else if (body.isMascot) {
+        if (body.isMascot) {
           drawMascotBody(ctx, body);
         }
       });
@@ -431,6 +422,42 @@ export default function GameCanvas({
     }
   };
 
+  const drawGlassBox = (ctx) => {
+    ctx.save();
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.02)';
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+    ctx.lineWidth = 1;
+
+    const floorY = 680 - WALL_WIDTH;
+
+    // 1. Draw floor sheet (across the bottom)
+    ctx.beginPath();
+    ctx.rect(0, floorY, 480, WALL_WIDTH);
+    ctx.fill();
+
+    // 2. Draw left wall sheet (down to floor)
+    ctx.beginPath();
+    ctx.rect(0, 0, WALL_WIDTH, floorY);
+    ctx.fill();
+
+    // 3. Draw right wall sheet (down to floor)
+    ctx.beginPath();
+    ctx.rect(480 - WALL_WIDTH, 0, WALL_WIDTH, floorY);
+    ctx.fill();
+
+    // 4. Draw inner reflection lines (strokes) facing the play area
+    ctx.beginPath();
+    ctx.moveTo(WALL_WIDTH, 0);
+    ctx.lineTo(WALL_WIDTH, floorY);
+    ctx.moveTo(0, floorY);
+    ctx.lineTo(480, floorY);
+    ctx.moveTo(480 - WALL_WIDTH, 0);
+    ctx.lineTo(480 - WALL_WIDTH, floorY);
+    ctx.stroke();
+
+    ctx.restore();
+  };
+
   const drawMascotBody = (ctx, body) => {
     const { radius, tier } = body;
     const img = images[tier];
@@ -564,11 +591,11 @@ export default function GameCanvas({
           width: '100%',
           maxWidth: '520px',
           aspectRatio: '480 / 680',
-          background: 'rgba(5, 2, 10, 0.85)',
-          borderLeft: '4px solid rgba(168, 85, 247, 0.4)',
-          borderRight: '4px solid rgba(168, 85, 247, 0.4)',
-          borderBottom: '12px solid #a855f7',
-          boxShadow: '0 0 30px rgba(168, 85, 247, 0.15), inset 0 0 25px rgba(0, 0, 0, 0.8)',
+          background: 'rgba(10, 5, 20, 0.82)',
+          borderLeft: '1px solid rgba(255, 255, 255, 0.12)',
+          borderRight: '1px solid rgba(255, 255, 255, 0.12)',
+          borderBottom: '1px solid rgba(255, 255, 255, 0.12)',
+          boxShadow: '0 10px 30px rgba(0, 0, 0, 0.5), inset 0 0 20px rgba(255, 255, 255, 0.03)',
           borderRadius: '0 0 8px 8px',
           overflow: 'hidden',
           cursor: isGameOver ? 'default' : 'crosshair',

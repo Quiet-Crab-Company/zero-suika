@@ -14,7 +14,7 @@ export function ScorePanel({ score, highScore, lang }) {
       </div>
       
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', marginTop: '1rem', borderTop: '1px solid rgba(255, 255, 255, 0.05)', paddingTop: '0.75rem' }}>
-        <Trophy size={16} color="var(--neon-blue)" />
+        <Trophy size={16} color="#ffffff" />
         <span style={{ fontSize: '0.85rem', color: '#ffffff', textTransform: 'uppercase', letterSpacing: '1px' }}>
           {isJp ? 'ハイスコア:' : 'High Score:'}
         </span>
@@ -28,11 +28,11 @@ export function UpcomingDrop({ nextMascotIndex, lang }) {
   const nextMascot = MASCOTS[nextMascotIndex] || MASCOTS[0];
   const isJp = lang === 'jp';
   return (
-    <div className="glass-panel-blue" style={{ padding: '1.25rem', textAlign: 'center' }}>
+    <div className="glass-panel" style={{ padding: '1.25rem', textAlign: 'center' }}>
       <div style={{ 
         fontFamily: 'var(--hud)', 
         fontSize: '0.85rem', 
-        color: '#ec4899', 
+        color: '#ffffff', 
         letterSpacing: '2px', 
         marginBottom: '1rem',
         display: 'flex',
