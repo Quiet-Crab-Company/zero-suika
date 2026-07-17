@@ -22,13 +22,12 @@ export default function GameCanvas({
   setCurrentTier,
   onMerge,
   onDrop,
-  setIsOverflowing
+  setIsOverflowing,
+  images
 }) {
   const canvasRef = useRef(null);
   
   // Game states
-  const [images, setImages] = useState(null);
-  const [loading, setLoading] = useState(true);
   const [currentMascotIndex, setCurrentMascotIndex] = useState(0);
   const [canDrop, setCanDrop] = useState(true);
   const [mouseX, setMouseX] = useState(240);
@@ -66,67 +65,9 @@ export default function GameCanvas({
     return Math.max(leftLimit, Math.min(rightLimit, rawX));
   };
 
-  // Pre-load images
-  useEffect(() => {
-    let loadedCount = 0;
-    const loadedImages = {};
-    
-    MASCOTS.forEach((m, index) => {
-      const img = new Image();
-      img.src = `${import.meta.env.BASE_URL}assets/${m.filename}`;
-      img.onload = () => {
-        loadedImages[index] = img;
-        loadedCount++;
-        if (loadedCount === MASCOTS.length) {
-          setImages(loadedImages);
-          setLoading(false);
-        }
-      };
-      img.onerror = () => {
-        // High quality fallback vector canvas
-        const canvas = document.createElement('canvas');
-        canvas.width = 256;
-        canvas.height = 256;
-        const ctx = canvas.getContext('2d');
-        
-        const grad = ctx.createRadialGradient(128, 128, 10, 128, 128, 120);
-        grad.addColorStop(0, '#1b0e2f');
-        grad.addColorStop(1, '#080312');
-        ctx.fillStyle = grad;
-        ctx.fillRect(0, 0, 256, 256);
-        
-        ctx.strokeStyle = m.color;
-        ctx.lineWidth = 8;
-        ctx.shadowColor = m.color;
-        ctx.shadowBlur = 15;
-        ctx.beginPath();
-        ctx.arc(128, 128, 110, 0, Math.PI * 2);
-        ctx.stroke();
-        
-        ctx.shadowBlur = 0;
-        ctx.fillStyle = '#ffffff';
-        ctx.font = 'bold 72px Orbitron';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(String(index + 1), 128, 128);
-        
-        const fallbackImg = new Image();
-        fallbackImg.src = canvas.toDataURL();
-        fallbackImg.onload = () => {
-          loadedImages[index] = fallbackImg;
-          loadedCount++;
-          if (loadedCount === MASCOTS.length) {
-            setImages(loadedImages);
-            setLoading(false);
-          }
-        };
-      };
-    });
-  }, []);
-
   // Initialize Matter.js engine exactly ONCE (or on reset)
   useEffect(() => {
-    if (loading || !images) return;
+    if (!images) return;
 
     // Reset local warning timers
     warnTimeAccumulatorRef.current = 0;
@@ -606,40 +547,6 @@ export default function GameCanvas({
         onTouchStart={handleTouchStart}
         onClick={handleDrop}
       >
-        {loading && (
-          <div style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: 'var(--bg-darker)',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'center',
-            alignItems: 'center',
-            zIndex: 30
-          }}>
-            <div style={{
-              width: '50px',
-              height: '50px',
-              border: '4px solid rgba(168, 85, 247, 0.1)',
-              borderTop: '4px solid var(--neon-purple)',
-              borderRadius: '50%',
-              animation: 'spin 1s linear infinite'
-            }}/>
-            <div style={{
-              marginTop: '1.5rem',
-              fontFamily: 'var(--hud)',
-              color: '#fff',
-              letterSpacing: '3px',
-              fontSize: '0.9rem'
-            }}>
-              LOADING MASCOTS...
-            </div>
-          </div>
-        )}
-
         <canvas 
           ref={canvasRef} 
           width={480} 

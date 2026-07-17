@@ -3,6 +3,7 @@ import GameCanvas from './components/GameCanvas';
 import { ScorePanel, UpcomingDrop, RestartButton, HowToPlay, DailyScores } from './components/ScoreBoard';
 import MergeChart from './components/MergeChart';
 import { Volume2, VolumeX, ShieldAlert, Award } from 'lucide-react';
+import { MASCOTS } from './config/mascots';
 
 export default function App() {
   const [score, setScore] = useState(0);
@@ -39,6 +40,53 @@ export default function App() {
     }
     return [];
   });
+  const [loadedCount, setLoadedCount] = useState(0);
+  const [preloadedImages, setPreloadedImages] = useState({});
+  const [isAssetsLoaded, setIsAssetsLoaded] = useState(false);
+  const [gameStarted, setGameStarted] = useState(false);
+
+  // Pre-load all mascot assets at application startup
+  useEffect(() => {
+    let count = 0;
+    const imgs = {};
+    MASCOTS.forEach((m, index) => {
+      const img = new Image();
+      img.src = `${import.meta.env.BASE_URL}assets/${m.filename}`;
+      img.onload = () => {
+        imgs[index] = img;
+        count++;
+        setLoadedCount(count);
+        if (count === MASCOTS.length) {
+          setPreloadedImages(imgs);
+          setIsAssetsLoaded(true);
+        }
+      };
+      img.onerror = () => {
+        // Fallback canvas drawing if asset fails
+        const canvas = document.createElement('canvas');
+        canvas.width = 128;
+        canvas.height = 128;
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = m.color;
+        ctx.beginPath();
+        ctx.arc(64, 64, 55, 0, Math.PI * 2);
+        ctx.fill();
+        
+        const fallbackImg = new Image();
+        fallbackImg.src = canvas.toDataURL();
+        fallbackImg.onload = () => {
+          imgs[index] = fallbackImg;
+          count++;
+          setLoadedCount(count);
+          if (count === MASCOTS.length) {
+            setPreloadedImages(imgs);
+            setIsAssetsLoaded(true);
+          }
+        };
+      };
+    });
+  }, []);
+
   const bgmRef = useRef(null);
 
   // BGM Audio Element initialization
@@ -55,9 +103,9 @@ export default function App() {
     };
   }, []);
 
-  // Sync BGM play/pause status with the global mute state
+  // Sync BGM play/pause status with the global mute state and game initiation
   useEffect(() => {
-    if (!bgmRef.current) return;
+    if (!bgmRef.current || !gameStarted) return;
 
     let isSubscribed = true;
 
@@ -84,7 +132,7 @@ export default function App() {
       window.removeEventListener('click', startAudio);
       window.removeEventListener('touchstart', startAudio);
     };
-  }, [muted]);
+  }, [muted, gameStarted]);
 
   // Sound generator utilizing Web Audio API (completely client-side synthesized, no asset dependencies)
   const playSound = (type, tier = 0) => {
@@ -223,6 +271,161 @@ export default function App() {
       return nextMuted;
     });
   };
+
+  if (!gameStarted) {
+    const isJp = lang === 'jp';
+    const progressPercent = Math.round((loadedCount / MASCOTS.length) * 100);
+
+    return (
+      <div style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        background: 'radial-gradient(circle at center, #0f0728 0%, #05020a 100%)',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        zIndex: 9999,
+        padding: '2rem'
+      }}>
+        {/* Loading card */}
+        <div 
+          className="glass-panel" 
+          style={{
+            padding: '3rem 2rem',
+            maxWidth: '420px',
+            width: '100%',
+            textAlign: 'center',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            boxShadow: '0 20px 50px rgba(0, 0, 0, 0.7), 0 0 30px rgba(168, 85, 247, 0.1)'
+          }}
+        >
+          {/* Futuristic animated rings */}
+          <div style={{ position: 'relative', width: '100px', height: '100px', marginBottom: '2rem' }}>
+            <div style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: '100px',
+              height: '100px',
+              border: '4px solid rgba(168, 85, 247, 0.1)',
+              borderTop: '4px solid var(--neon-purple)',
+              borderRadius: '50%',
+              animation: 'spin 1.5s linear infinite'
+            }} />
+            <div style={{
+              position: 'absolute',
+              top: '10px',
+              left: '10px',
+              width: '80px',
+              height: '80px',
+              border: '4px solid rgba(236, 72, 153, 0.05)',
+              borderBottom: '4px solid var(--neon-magenta)',
+              borderRadius: '50%',
+              animation: 'spin 1s linear infinite reverse'
+            }} />
+            <div style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontFamily: 'var(--hud)',
+              fontSize: '1.2rem',
+              fontWeight: 'bold',
+              color: '#fff'
+            }}>
+              {progressPercent}%
+            </div>
+          </div>
+
+          <h1 style={{
+            fontFamily: 'var(--hud)',
+            fontSize: '1.8rem',
+            fontWeight: '900',
+            letterSpacing: '3px',
+            color: '#fff',
+            margin: '0 0 0.5rem 0',
+            textShadow: '0 0 10px rgba(168, 85, 247, 0.5)'
+          }}>
+            {isJp ? 'トライブナイン' : 'TRIBE NINE'}
+          </h1>
+          <p style={{
+            fontFamily: 'var(--hud)',
+            fontSize: '0.8rem',
+            letterSpacing: '2px',
+            color: 'var(--neon-blue)',
+            margin: '0 0 2rem 0',
+            textTransform: 'uppercase'
+          }}>
+            {isJp ? '極限の進化ゲーム' : 'ULTIMATE SUIKA EVOLUTION'}
+          </p>
+
+          {/* Loading status bar */}
+          <div style={{ width: '100%', height: '4px', background: 'rgba(255, 255, 255, 0.05)', borderRadius: '2px', overflow: 'hidden', marginBottom: '2.5rem' }}>
+            <div style={{
+              width: `${progressPercent}%`,
+              height: '100%',
+              background: 'linear-gradient(90deg, var(--neon-purple), var(--neon-magenta))',
+              transition: 'width 0.2s ease-out',
+              boxShadow: '0 0 8px var(--neon-purple)'
+            }} />
+          </div>
+
+          {/* Start button or status message */}
+          {isAssetsLoaded ? (
+            <button
+              className="neon-btn"
+              onClick={() => {
+                setGameStarted(true);
+                if (!muted && bgmRef.current) {
+                  bgmRef.current.play().catch(err => console.warn('BGM play failed:', err));
+                }
+              }}
+              style={{
+                padding: '1rem 3rem',
+                fontSize: '1.1rem',
+                width: '100%',
+                maxWidth: '240px',
+                animation: 'pulse 1.5s infinite alternate ease-in-out'
+              }}
+            >
+              {isJp ? 'ゲーム開始' : 'START GAME'}
+            </button>
+          ) : (
+            <div style={{
+              fontFamily: 'var(--hud)',
+              fontSize: '0.85rem',
+              color: '#64748b',
+              letterSpacing: '1px'
+            }}>
+              {isJp ? 'システムアセットをロード中...' : 'LOADING ASSETS...'}
+            </div>
+          )}
+        </div>
+
+        {/* Floating background keyframes style */}
+        <style>{`
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+          @keyframes pulse {
+            0% { transform: scale(0.98); box-shadow: 0 0 10px rgba(168, 85, 247, 0.2); }
+            100% { transform: scale(1.04); box-shadow: 0 0 25px rgba(168, 85, 247, 0.5); }
+          }
+        `}</style>
+      </div>
+    );
+  }
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
@@ -400,6 +603,7 @@ export default function App() {
                 onMerge={handleMergeEvent}
                 onDrop={handleDropEvent}
                 setIsOverflowing={setIsOverflowing}
+                images={preloadedImages}
               />
 
               {/* Game Over Screen Overlay */}
