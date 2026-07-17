@@ -17,7 +17,7 @@ export default function ScoreBoard({ score, highScore, nextMascotIndex, onRestar
   const nextMascot = MASCOTS[nextMascotIndex] || MASCOTS[0];
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', width: '100%' }}>
+    <div className="scoreboard-container">
       {/* Score Panel */}
       <div className="glass-panel" style={{ padding: '1.5rem', textAlign: 'center' }}>
         <div style={{ fontFamily: 'var(--hud)', fontSize: '0.9rem', color: 'var(--neon-purple)', letterSpacing: '2px', marginBottom: '0.25rem' }}>

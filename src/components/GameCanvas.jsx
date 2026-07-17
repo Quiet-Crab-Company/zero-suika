@@ -496,14 +496,27 @@ export default function GameCanvas({
   const handleMouseMove = (e) => {
     if (!canvasRef.current || isGameOverRef.current) return;
     const rect = canvasRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left;
+    if (rect.width === 0) return;
+    const scaleX = 480 / rect.width;
+    const x = (e.clientX - rect.left) * scaleX;
     setMouseX(x);
   };
 
   const handleTouchMove = (e) => {
     if (!canvasRef.current || isGameOverRef.current || e.touches.length === 0) return;
     const rect = canvasRef.current.getBoundingClientRect();
-    const x = e.touches[0].clientX - rect.left;
+    if (rect.width === 0) return;
+    const scaleX = 480 / rect.width;
+    const x = (e.touches[0].clientX - rect.left) * scaleX;
+    setMouseX(x);
+  };
+
+  const handleTouchStart = (e) => {
+    if (!canvasRef.current || isGameOverRef.current || e.touches.length === 0) return;
+    const rect = canvasRef.current.getBoundingClientRect();
+    if (rect.width === 0) return;
+    const scaleX = 480 / rect.width;
+    const x = (e.touches[0].clientX - rect.left) * scaleX;
     setMouseX(x);
   };
 
@@ -557,8 +570,9 @@ export default function GameCanvas({
       <div 
         style={{
           position: 'relative',
-          width: '480px',
-          height: '680px',
+          width: '100%',
+          maxWidth: '480px',
+          aspectRatio: '480 / 680',
           background: 'rgba(5, 2, 10, 0.85)',
           borderLeft: '4px solid rgba(168, 85, 247, 0.4)',
           borderRight: '4px solid rgba(168, 85, 247, 0.4)',
@@ -571,6 +585,7 @@ export default function GameCanvas({
         }}
         onMouseMove={handleMouseMove}
         onTouchMove={handleTouchMove}
+        onTouchStart={handleTouchStart}
         onClick={handleDrop}
       >
         {loading && (

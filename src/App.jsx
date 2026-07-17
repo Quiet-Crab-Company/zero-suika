@@ -202,7 +202,7 @@ export default function App() {
       <main className="game-container">
         
         {/* Left Side: Score Board / High Score / Settings */}
-        <section style={{ width: '100%' }}>
+        <section className="grid-sidebar-left" style={{ width: '100%' }}>
           <ScoreBoard 
             score={score} 
             highScore={highScore} 
@@ -212,8 +212,8 @@ export default function App() {
         </section>
 
         {/* Center: Drop Canvas Container */}
-        <section style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
-          <div style={{ position: 'relative' }}>
+        <section className="grid-canvas-center" style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+          <div style={{ position: 'relative', width: '100%', maxWidth: '480px', display: 'flex', justifyContent: 'center' }}>
             <GameCanvas 
               score={score} 
               setScore={setScore}
@@ -305,7 +305,7 @@ export default function App() {
         </section>
 
         {/* Right Side: Evolution Merge Chart */}
-        <section style={{ width: '100%' }}>
+        <section className="grid-sidebar-right" style={{ width: '100%' }}>
           <MergeChart currentTier={currentTier} />
         </section>
       </main>

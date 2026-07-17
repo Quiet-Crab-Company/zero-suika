@@ -239,11 +239,76 @@ body {
   align-items: start;
 }
 
+.scoreboard-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+}
+
+.mergechart-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-height: 480px;
+  overflow-y: auto;
+  padding-right: 0.25rem;
+}
+
 @media (max-width: 1024px) {
   .game-container {
     grid-template-columns: 1fr;
     gap: 1.5rem;
     padding: 1rem;
+  }
+  
+  .grid-canvas-center {
+    order: 1;
+  }
+  
+  .grid-sidebar-left {
+    order: 2;
+  }
+  
+  .grid-sidebar-right {
+    order: 3;
+  }
+
+  .scoreboard-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+  
+  /* Make the instructions span full width on tablets */
+  .scoreboard-container > div:last-child {
+    grid-column: span 2;
+  }
+  
+  /* Make the restart button span full width */
+  .scoreboard-container > button {
+    grid-column: span 2;
+  }
+}
+
+@media (max-width: 640px) {
+  .scoreboard-container {
+    grid-template-columns: 1fr;
+  }
+  .scoreboard-container > div:last-child,
+  .scoreboard-container > button {
+    grid-column: span 1;
+  }
+
+  .mergechart-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    max-height: none;
+    overflow-y: visible;
+  }
+
+  .mergechart-arrow {
+    display: none;
   }
 }
 

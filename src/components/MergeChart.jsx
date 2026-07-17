@@ -32,14 +32,7 @@ export default function MergeChart({ currentTier }) {
         <span style={{ fontSize: '0.8rem', color: 'var(--neon-purple)' }}>9 TIERS</span>
       </div>
       
-      <div style={{
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '0.5rem',
-        maxHeight: '480px',
-        overflowY: 'auto',
-        paddingRight: '0.25rem'
-      }}>
+      <div className="mergechart-list">
         {MASCOTS.map((m) => {
           const isActive = currentTier === m.tier;
           return (
@@ -109,7 +102,7 @@ export default function MergeChart({ currentTier }) {
               </div>
 
               {m.tier < 8 && (
-                <div style={{ fontSize: '0.8rem', color: '#475569' }}>
+                <div className="mergechart-arrow" style={{ fontSize: '0.8rem', color: '#475569' }}>
                   →
                 </div>
               )}
