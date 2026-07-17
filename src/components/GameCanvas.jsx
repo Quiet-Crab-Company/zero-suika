@@ -264,7 +264,7 @@ export default function GameCanvas({
       Matter.Composite.clear(engine.world);
       Matter.Engine.clear(engine);
     };
-  }, [loading, images, resetTrigger]);
+  }, [images, resetTrigger]);
 
   // Particle updates
   const createMergeParticles = (x, y, color) => {
@@ -481,7 +481,7 @@ export default function GameCanvas({
 
   // Mouse / Touch click drops
   const handleDrop = () => {
-    if (!canDropRef.current || isGameOverRef.current || loading || !images || !engineRef.current) return;
+    if (!canDropRef.current || isGameOverRef.current || !images || !engineRef.current) return;
 
     // Synchronously lock dropper immediately to prevent overlapping duplicate spawns
     canDropRef.current = false;

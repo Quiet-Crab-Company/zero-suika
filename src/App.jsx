@@ -356,7 +356,7 @@ export default function App() {
             margin: '0 0 0.5rem 0',
             textShadow: '0 0 10px rgba(168, 85, 247, 0.5)'
           }}>
-            {isJp ? 'トライブナイン' : 'TRIBE NINE'}
+            {isJp ? 'ゼロのツキア' : 'Zero no Tsukia'}
           </h1>
           <p style={{
             fontFamily: 'var(--hud)',
@@ -366,7 +366,7 @@ export default function App() {
             margin: '0 0 2rem 0',
             textTransform: 'uppercase'
           }}>
-            {isJp ? '極限の進化ゲーム' : 'ULTIMATE SUIKA EVOLUTION'}
+            {isJp ? 'トライブナイン ファンメイド スイカゲーム' : 'Tribe Nine fanmade Suika game'}
           </p>
 
           {/* Loading status bar */}
@@ -469,7 +469,7 @@ export default function App() {
       <header className="game-header">
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           <h1 className="game-title neon-text-purple" style={{ fontSize: '2rem', letterSpacing: '1px', textTransform: 'uppercase' }}>
-            {lang === 'jp' ? 'ゼロのスイカ' : 'Zero no Suika'}
+            {lang === 'jp' ? 'ゼロのツキア' : 'Zero no Tsukia'}
           </h1>
         </div>
 
