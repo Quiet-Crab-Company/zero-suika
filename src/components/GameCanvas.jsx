@@ -82,7 +82,7 @@ export default function GameCanvas({
     
     MASCOTS.forEach((m, index) => {
       const img = new Image();
-      img.src = `/assets/${m.filename}`;
+      img.src = `${import.meta.env.BASE_URL}assets/${m.filename}`;
       img.onload = () => {
         loadedImages[index] = img;
         loadedCount++;

@@ -74,7 +74,7 @@ export default function ScoreBoard({ score, highScore, nextMascotIndex, onRestar
             animation: 'pulse 2s infinite alternate'
           }}>
             <img 
-              src={`/assets/${nextMascot.filename}`} 
+              src={`${import.meta.env.BASE_URL}assets/${nextMascot.filename}`} 
               alt={nextMascot.name} 
               style={{
                 width: '100%',

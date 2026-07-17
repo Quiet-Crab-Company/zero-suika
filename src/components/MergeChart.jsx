@@ -81,7 +81,7 @@ export default function MergeChart({ currentTier }) {
                 justifyContent: 'center'
               }}>
                 <img 
-                  src={`/assets/${m.filename}`} 
+                  src={`${import.meta.env.BASE_URL}assets/${m.filename}`} 
                   alt={m.name} 
                   style={{
                     width: '100%',
