@@ -1,4 +1,4 @@
-# Zero no Suika 🍉
+# Zero no Suika 
 
 A **Tribe Nine** fanmade Suika (Watermelon) game built with React and Matter.js physics.
 
