@@ -258,11 +258,11 @@ body {
     order: 1;
   }
   
-  .grid-sidebar-left {
+  .grid-sidebar-right {
     order: 2;
   }
   
-  .grid-sidebar-right {
+  .grid-sidebar-left {
     order: 3;
   }
 

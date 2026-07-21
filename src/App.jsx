@@ -696,51 +696,52 @@ export default function App() {
         <section className="grid-sidebar-right" style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
           <UpcomingDrop nextMascotIndex={nextMascotIndex} lang={lang} />
           <MergeChart currentTier={currentTier} lang={lang} />
-
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '0.5rem',
-            marginTop: '0.5rem',
-            fontFamily: 'var(--hud)',
-            fontSize: '0.8rem',
-            color: '#64748b'
-          }}>
-            <span>created by Nisie | カニシズ</span>
-            <span style={{ color: 'rgba(255,255,255,0.1)' }}>|</span>
-            <a 
-              href="https://x.com/qkz_iroiro" 
-              target="_blank" 
-              rel="noopener noreferrer" 
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                color: '#64748b',
-                transition: 'color 0.2s',
-                textDecoration: 'none'
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.color = '#fff'}
-              onMouseLeave={(e) => e.currentTarget.style.color = '#64748b'}
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-              </svg>
-            </a>
-          </div>
-          <p style={{
-            fontFamily: 'var(--hud)',
-            fontSize: '0.65rem',
-            color: '#475569',
-            textAlign: 'center',
-            lineHeight: '1.5',
-            marginTop: '0.5rem',
-            padding: '0 0.5rem'
-          }}>
-            This is a non-profit fanmade game for the series Tribe Nine. Both Tribe Nine and Suika game belongs to their respective owner.
-          </p>
         </section>
       </main>
+
+      <footer style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', padding: '1rem 0.5rem', marginTop: 'auto' }}>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '0.5rem',
+          fontFamily: 'var(--hud)',
+          fontSize: '0.8rem',
+          color: '#64748b'
+        }}>
+          <span>created by Nisie | カニシズ</span>
+          <span style={{ color: 'rgba(255,255,255,0.1)' }}>|</span>
+          <a 
+            href="https://x.com/qkz_iroiro" 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              color: '#64748b',
+              transition: 'color 0.2s',
+              textDecoration: 'none'
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.color = '#fff'}
+            onMouseLeave={(e) => e.currentTarget.style.color = '#64748b'}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+            </svg>
+          </a>
+        </div>
+        <p style={{
+          fontFamily: 'var(--hud)',
+          fontSize: '0.65rem',
+          color: '#475569',
+          textAlign: 'center',
+          lineHeight: '1.5',
+          margin: 0,
+          padding: '0 0.5rem'
+        }}>
+          This is a non-profit fanmade game for the series Tribe Nine. Both Tribe Nine and Suika game belongs to their respective owner.
+        </p>
+      </footer>
 
       <div className={`warning-tape-container ${isOverflowing ? 'warning-tape-overflow' : 'warning-tape-blue'}`} style={{ marginTop: 'auto' }}>
         <div className="warning-tape-content">
