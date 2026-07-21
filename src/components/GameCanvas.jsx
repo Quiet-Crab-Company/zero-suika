@@ -22,11 +22,17 @@ export default function GameCanvas({
   onMerge,
   onDrop,
   setIsOverflowing,
-  images
+  images,
+  savedGame
 }) {
   const canvasRef = useRef(null);
 
-  const [currentMascotIndex, setCurrentMascotIndex] = useState(0);
+  const [currentMascotIndex, setCurrentMascotIndex] = useState(() => {
+    if (savedGame && typeof savedGame.currentMascotIndex === 'number') {
+      return savedGame.currentMascotIndex;
+    }
+    return 0;
+  });
   const [canDrop, setCanDrop] = useState(true);
   const [mouseX, setMouseX] = useState(240);
   const [warningTimer, setWarningTimer] = useState(0); 
@@ -37,6 +43,8 @@ export default function GameCanvas({
   const particlesRef = useRef([]);
   const bodiesToDeleteRef = useRef(new Set());
   const warnTimeAccumulatorRef = useRef(0);
+  const savedGameRef = useRef(savedGame);
+  const savedGameRestoredRef = useRef(false);
 
   const mouseXRef = useRef(mouseX);
   const currentMascotIndexRef = useRef(currentMascotIndex);
@@ -44,12 +52,72 @@ export default function GameCanvas({
   const isGameOverRef = useRef(isGameOver);
   const nextMascotIndexRef = useRef(nextMascotIndex);
   const warningTimerRef = useRef(0);
+  const scoreRef = useRef(score);
+  const imagesRef = useRef(images);
 
   useEffect(() => { mouseXRef.current = mouseX; }, [mouseX]);
   useEffect(() => { currentMascotIndexRef.current = currentMascotIndex; }, [currentMascotIndex]);
   useEffect(() => { canDropRef.current = canDrop; }, [canDrop]);
   useEffect(() => { isGameOverRef.current = isGameOver; }, [isGameOver]);
   useEffect(() => { nextMascotIndexRef.current = nextMascotIndex; }, [nextMascotIndex]);
+  useEffect(() => { scoreRef.current = score; }, [score]);
+  useEffect(() => { imagesRef.current = images; }, [images]);
+
+  useEffect(() => {
+    if (resetTrigger > 0) {
+      savedGameRef.current = null;
+      setCurrentMascotIndex(0);
+      savedGameRestoredRef.current = true;
+    }
+  }, [resetTrigger]);
+
+  const saveGameState = () => {
+    if (!engineRef.current || isGameOverRef.current || !savedGameRestoredRef.current) return;
+    try {
+      const allBodies = Matter.Composite.allBodies(engineRef.current.world);
+      const mascotBodies = allBodies
+        .filter(b => b.isMascot && !b.toBeDeleted && !b.isStatic)
+        .map(b => ({
+          tier: b.tier,
+          x: Math.round(b.position.x * 100) / 100,
+          y: Math.round(b.position.y * 100) / 100,
+          vx: Math.round(b.velocity.x * 1000) / 1000,
+          vy: Math.round(b.velocity.y * 1000) / 1000,
+          angle: Math.round(b.angle * 1000) / 1000,
+          angularVelocity: Math.round(b.angularVelocity * 1000) / 1000
+        }));
+
+      const data = {
+        score: scoreRef.current,
+        currentMascotIndex: currentMascotIndexRef.current,
+        nextMascotIndex: nextMascotIndexRef.current,
+        bodies: mascotBodies,
+        isGameOver: false
+      };
+      console.log('[T9Suika] saveGameState saving data:', data);
+      localStorage.setItem('t9suika_saved_game', JSON.stringify(data));
+    } catch (e) {
+      console.warn('[T9Suika] Failed to save game state:', e);
+    }
+  };
+
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      saveGameState();
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    const autoSaveInterval = setInterval(() => {
+      if (!isGameOverRef.current) {
+        saveGameState();
+      }
+    }, 2000);
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      clearInterval(autoSaveInterval);
+    };
+  }, []);
 
   const currentMascot = MASCOTS[currentMascotIndex];
 
@@ -60,8 +128,6 @@ export default function GameCanvas({
   };
 
   useEffect(() => {
-    if (!images) return;
-
     warnTimeAccumulatorRef.current = 0;
     warningTimerRef.current = 0;
     setWarningTimer(0);
@@ -85,6 +151,46 @@ export default function GameCanvas({
     });
 
     Matter.Composite.add(engine.world, [floor, leftWall, rightWall]);
+
+    if (savedGameRef.current && Array.isArray(savedGameRef.current.bodies) && savedGameRef.current.bodies.length > 0) {
+      console.log('[T9Suika] Restoring saved bodies count:', savedGameRef.current.bodies.length, savedGameRef.current.bodies);
+      let maxTier = 0;
+      savedGameRef.current.bodies.forEach((b, idx) => {
+        if (typeof b.tier === 'number' && MASCOTS[b.tier]) {
+          const mascotDef = MASCOTS[b.tier];
+          if (b.tier > maxTier) maxTier = b.tier;
+
+          const posX = Number.isFinite(b.x) ? b.x : 240;
+          const posY = Number.isFinite(b.y) ? b.y : 500;
+
+          const clampedX = getClampedX(posX, mascotDef.radius);
+          const clampedY = Math.min(Math.max(mascotDef.radius, posY), 668 - mascotDef.radius);
+
+          const body = Matter.Bodies.circle(clampedX, clampedY, mascotDef.radius, {
+            restitution: 0.15,
+            friction: 0.08,
+            density: 0.001,
+            label: 'mascot',
+            isMascot: true,
+            tier: b.tier,
+            radius: mascotDef.radius
+          });
+          if (typeof b.angle === 'number' && Number.isFinite(b.angle)) {
+            Matter.Body.setAngle(body, b.angle);
+          }
+          if (typeof b.vx === 'number' && Number.isFinite(b.vx) && typeof b.vy === 'number' && Number.isFinite(b.vy)) {
+            Matter.Body.setVelocity(body, { x: b.vx, y: b.vy });
+          }
+          if (typeof b.angularVelocity === 'number' && Number.isFinite(b.angularVelocity)) {
+            Matter.Body.setAngularVelocity(body, b.angularVelocity);
+          }
+          Matter.Composite.add(engine.world, body);
+          console.log(`[T9Suika] Restored body #${idx}: tier=${b.tier}, pos=(${clampedX}, ${clampedY})`);
+        }
+      });
+      if (setCurrentTier) setCurrentTier(maxTier);
+    }
+    savedGameRestoredRef.current = true;
 
     const handleCollision = (event) => {
       event.pairs.forEach((pair) => {
@@ -202,6 +308,10 @@ export default function GameCanvas({
         }
       });
 
+      if (merges.length > 0) {
+        saveGameState();
+      }
+
       const allActiveBodies = Matter.Composite.allBodies(engine.world);
       const activeIds = new Set(allActiveBodies.map(b => b.id));
       for (const id of bodiesToDeleteRef.current) {
@@ -241,8 +351,10 @@ export default function GameCanvas({
 
         ctx.save();
         ctx.translate(clampedX, 80);
-        if (images[currentMascotIndexRef.current]) {
-          ctx.drawImage(images[currentMascotIndexRef.current], -activeMascot.radius, -activeMascot.radius, activeMascot.radius * 2, activeMascot.radius * 2);
+        const imgs = imagesRef.current;
+        const currentImg = imgs ? imgs[currentMascotIndexRef.current] : null;
+        if (currentImg && currentImg.complete && currentImg.naturalWidth !== 0) {
+          ctx.drawImage(currentImg, -activeMascot.radius, -activeMascot.radius, activeMascot.radius * 2, activeMascot.radius * 2);
         }
         ctx.restore();
       }
@@ -260,7 +372,7 @@ export default function GameCanvas({
       Matter.Composite.clear(engine.world);
       Matter.Engine.clear(engine);
     };
-  }, [images, resetTrigger]);
+  }, [resetTrigger]);
 
   const createMergeParticles = (x, y, color) => {
     const list = particlesRef.current;
@@ -386,14 +498,24 @@ export default function GameCanvas({
 
   const drawMascotBody = (ctx, body) => {
     const { radius, tier } = body;
-    const img = images[tier];
+    const mascotDef = MASCOTS[tier] || MASCOTS[0];
+    const imgs = imagesRef.current;
+    const img = imgs ? imgs[tier] : null;
 
     ctx.save();
     ctx.translate(body.position.x, body.position.y);
     ctx.rotate(body.angle);
     
-    if (img) {
+    if (img && img.complete && img.naturalWidth !== 0) {
       ctx.drawImage(img, -radius, -radius, radius * 2, radius * 2);
+    } else {
+      ctx.beginPath();
+      ctx.arc(0, 0, radius, 0, Math.PI * 2);
+      ctx.fillStyle = mascotDef ? mascotDef.color : '#a855f7';
+      ctx.fill();
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = '#ffffff';
+      ctx.stroke();
     }
     ctx.restore();
   };
@@ -463,7 +585,7 @@ export default function GameCanvas({
   };
 
   const handleDrop = () => {
-    if (!canDropRef.current || isGameOverRef.current || !images || !engineRef.current) return;
+    if (!canDropRef.current || isGameOverRef.current || !engineRef.current) return;
 
     canDropRef.current = false;
     setCanDrop(false);
@@ -482,6 +604,7 @@ export default function GameCanvas({
     });
 
     Matter.Composite.add(engineRef.current.world, body);
+    saveGameState();
 
     if (onDrop) onDrop();
 
@@ -491,6 +614,7 @@ export default function GameCanvas({
       const nextRandomIndex = Math.floor(Math.random() * 5);
       setNextMascotIndex(nextRandomIndex);
       setCanDrop(true);
+      saveGameState();
     }, DROP_COOLDOWN);
   };
 

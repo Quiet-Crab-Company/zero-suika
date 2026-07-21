@@ -5,15 +5,37 @@ import MergeChart from './components/MergeChart';
 import { Volume2, VolumeX, ShieldAlert, Award } from 'lucide-react';
 import { MASCOTS } from './config/mascots';
 
+const SAVED_GAME_KEY = 't9suika_saved_game';
+
+const getInitialSavedGame = () => {
+  try {
+    const saved = localStorage.getItem(SAVED_GAME_KEY);
+    console.log('[T9Suika] getInitialSavedGame raw saved game from localStorage:', saved);
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (parsed && typeof parsed === 'object' && !parsed.isGameOver && Array.isArray(parsed.bodies)) {
+        console.log('[T9Suika] getInitialSavedGame valid parsed game:', parsed);
+        return parsed;
+      }
+    }
+  } catch (e) {
+    console.warn('[T9Suika] Failed to parse saved game state:', e);
+  }
+  return null;
+};
+
 export default function App() {
-  const [score, setScore] = useState(0);
+  const [initialSavedGame] = useState(getInitialSavedGame);
+  const [score, setScore] = useState(() => initialSavedGame?.score ?? 0);
   const scoreRef = useRef(0);
   const [highScore, setHighScore] = useState(() => {
     return Number(localStorage.getItem('t9suika_highscore')) || 0;
   });
 
   const [nextMascotIndex, setNextMascotIndex] = useState(() => {
-    return Math.floor(Math.random() * 5);
+    return (initialSavedGame && typeof initialSavedGame.nextMascotIndex === 'number')
+      ? initialSavedGame.nextMascotIndex
+      : Math.floor(Math.random() * 5);
   });
   const [currentTier, setCurrentTier] = useState(0);
   const [isGameOver, setIsGameOver] = useState(false);
@@ -218,6 +240,7 @@ export default function App() {
   const handleGameOver = () => {
     setIsGameOver(true);
     setIsOverflowing(false);
+    localStorage.removeItem(SAVED_GAME_KEY);
     playSound('gameover');
 
     const currentScore = scoreRef.current;
@@ -237,7 +260,7 @@ export default function App() {
   };
 
   const handleRestart = () => {
-    
+    localStorage.removeItem(SAVED_GAME_KEY);
     const currentScore = scoreRef.current;
     if (currentScore > 0 && !isGameOver) {
       setDailyScores(prev => {
@@ -400,7 +423,7 @@ export default function App() {
                 animation: 'pulse 1.5s infinite alternate ease-in-out'
               }}
             >
-              {isJp ? 'ゲーム開始' : 'START GAME'}
+              {isJp ? (initialSavedGame ? 'ゲーム再開' : 'ゲーム開始') : (initialSavedGame ? 'RESUME GAME' : 'START GAME')}
             </button>
           ) : (
             <div style={{
@@ -597,6 +620,7 @@ export default function App() {
                 onDrop={handleDropEvent}
                 setIsOverflowing={setIsOverflowing}
                 images={preloadedImages}
+                savedGame={initialSavedGame}
               />
 
               {isGameOver && (
