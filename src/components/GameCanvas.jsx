@@ -367,6 +367,7 @@ export default function GameCanvas({
     loopRef.current = requestAnimationFrame(gameLoop);
 
     return () => {
+      if (dropTimeoutRef.current) clearTimeout(dropTimeoutRef.current);
       cancelAnimationFrame(loopRef.current);
       Matter.Events.off(engine, 'collisionStart', handleCollision);
       Matter.Composite.clear(engine.world);
@@ -584,6 +585,8 @@ export default function GameCanvas({
     setMouseX(x);
   };
 
+  const dropTimeoutRef = useRef(null);
+
   const handleDrop = () => {
     if (!canDropRef.current || isGameOverRef.current || !engineRef.current) return;
 
@@ -608,7 +611,8 @@ export default function GameCanvas({
 
     if (onDrop) onDrop();
 
-    setTimeout(() => {
+    if (dropTimeoutRef.current) clearTimeout(dropTimeoutRef.current);
+    dropTimeoutRef.current = setTimeout(() => {
       if (isGameOverRef.current) return;
       setCurrentMascotIndex(nextMascotIndexRef.current);
       const nextRandomIndex = Math.floor(Math.random() * 5);

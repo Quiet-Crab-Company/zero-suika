@@ -69,11 +69,13 @@ export default function App() {
 
   useEffect(() => {
     let count = 0;
+    let isMounted = true;
     const imgs = {};
     MASCOTS.forEach((m, index) => {
       const img = new Image();
       img.src = `${import.meta.env.BASE_URL}assets/${m.filename}`;
       img.onload = () => {
+        if (!isMounted) return;
         imgs[index] = img;
         count++;
         setLoadedCount(count);
@@ -83,7 +85,7 @@ export default function App() {
         }
       };
       img.onerror = () => {
-        
+        if (!isMounted) return;
         const canvas = document.createElement('canvas');
         canvas.width = 128;
         canvas.height = 128;
@@ -96,6 +98,7 @@ export default function App() {
         const fallbackImg = new Image();
         fallbackImg.src = canvas.toDataURL();
         fallbackImg.onload = () => {
+          if (!isMounted) return;
           imgs[index] = fallbackImg;
           count++;
           setLoadedCount(count);
@@ -106,6 +109,9 @@ export default function App() {
         };
       };
     });
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const bgmRef = useRef(null);
